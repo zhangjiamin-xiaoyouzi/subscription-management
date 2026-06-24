@@ -612,7 +612,7 @@
         const siderCollapsed = ref(localStorage.getItem('menu_siderCollapsed') === 'true');
         const opToolsOpen = ref(localStorage.getItem('menu_opToolsOpen') !== 'false');
         const deployOpen = ref(localStorage.getItem('menu_deployOpen') === 'true');
-        const priceManageOpen = ref(true);
+        const priceManageOpen = ref(false);
         const lotteryManageOpen = ref(true);
         watch(siderCollapsed, v => localStorage.setItem('menu_siderCollapsed', v));
         watch(opToolsOpen, v => localStorage.setItem('menu_opToolsOpen', v));
