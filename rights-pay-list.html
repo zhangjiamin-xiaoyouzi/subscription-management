@@ -563,10 +563,10 @@
     createApp({
       setup() {
         const siderCollapsed = ref(localStorage.getItem('menu_siderCollapsed') === 'true');
-        const opToolsOpen = ref(true);
+        const opToolsOpen = ref(false);
         const deployOpen = ref(true);
-        const priceManageOpen = ref(true);
-        const lotteryManageOpen = ref(true);
+        const priceManageOpen = ref(false);
+        const lotteryManageOpen = ref(false);
         const activeParents = ref(['deploy']);
         watch(siderCollapsed, v => localStorage.setItem('menu_siderCollapsed', v));
         const subMenuMaxHeight = '400px';

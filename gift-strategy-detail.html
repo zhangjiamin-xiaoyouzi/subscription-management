@@ -182,12 +182,12 @@
           <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">👥</span><span class="menu-label" v-show="!siderCollapsed">用户管理</span></a>
           <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">🖼️</span><span class="menu-label" v-show="!siderCollapsed">素材管理</span></a>
           <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">🔗</span><span class="menu-label" v-show="!siderCollapsed">拼团管理</span></a>
-          <div class="sider-menu-item parent-open" :class="{ active: activeParents.includes('opTools') }">
+          <div class="sider-menu-item parent-open" :class="{ active: activeParents.includes('opTools') }" @click="opToolsOpen = !opToolsOpen">
             <span class="menu-icon">🔧</span>
             <span class="menu-label" v-show="!siderCollapsed">运营工具</span>
-            <span class="menu-arrow open" v-show="!siderCollapsed">▶</span>
+            <span class="menu-arrow" :class="{ open: opToolsOpen }" v-show="!siderCollapsed">▶</span>
           </div>
-          <div class="sider-submenu" @click.stop :style="{ maxHeight: '2000px' }">
+          <div class="sider-submenu" @click.stop :style="{ maxHeight: opToolsOpen && !siderCollapsed ? '2000px' : '0' }">
             <a class="sider-menu-item" href="javascript:;"><span class="menu-label">弹窗</span></a>
             <a class="sider-menu-item" href="javascript:;"><span class="menu-label">兑换码</span></a>
             <a class="sider-menu-item active" href="javascript:void(0)" @click.stop="navigateTo('gift-strategy-list.html')"><span class="menu-label">赠礼发放策略</span></a>
@@ -495,9 +495,9 @@
       setup() {
         const siderCollapsed = ref(false);
         const opToolsOpen = ref(true);
-        const deployOpen = ref(true);
-        const priceManageOpen = ref(true);
-        const lotteryManageOpen = ref(true);
+        const deployOpen = ref(false);
+        const priceManageOpen = ref(false);
+        const lotteryManageOpen = ref(false);
         const activeParents = ref(['opTools']);
         const urlId = ref('');
         const record = ref(null);
