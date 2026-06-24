@@ -198,7 +198,7 @@
           <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">👥</span><span class="menu-label" v-show="!siderCollapsed">用户管理</span></a>
           <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">🖼️</span><span class="menu-label" v-show="!siderCollapsed">素材管理</span></a>
           <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">🔗</span><span class="menu-label" v-show="!siderCollapsed">拼团管理</span></a>
-          <div class="sider-menu-item parent-open" :class="{ active: opToolsOpen }" @click="opToolsOpen = !opToolsOpen">
+          <div class="sider-menu-item parent-open" :class="{ active: activeParents.includes('opTools') }" @click="opToolsOpen = !opToolsOpen">
             <span class="menu-icon">🔧</span>
             <span class="menu-label" v-show="!siderCollapsed">运营工具</span>
             <span class="menu-arrow" :class="{ open: opToolsOpen }" v-show="!siderCollapsed">▶</span>
@@ -212,16 +212,16 @@
             <a class="sider-menu-item" href="event-pricing-strategy-list.html">活动价格策略</a>
             <a class="sider-menu-item" href="event-operations-strategy-list.html">活动投放策略</a>
           </div>
-          <div class="sider-menu-item parent-open" :class="{ active: deployOpen }" @click="deployOpen = !deployOpen">
+          <div class="sider-menu-item parent-open" :class="{ active: activeParents.includes('deploy') }" @click="deployOpen = !deployOpen">
             <span class="menu-icon">📢</span>
             <span class="menu-label" v-show="!siderCollapsed">运营位投放策略</span>
             <span class="menu-arrow" :class="{ open: deployOpen }" v-show="!siderCollapsed">▶</span>
           </div>
           <div class="sider-submenu" :style="{ maxHeight: deployOpen && !siderCollapsed ? '110px' : '0' }">
-            <a class="sider-menu-item active" href="rights-pay-list.html">投放策略</a>
+            <a class="sider-menu-item active" href="rights-pay-list.html" @click.stop>投放策略</a>
             <a class="sider-menu-item" href="javascript:;">页面模块展示</a>
           </div>
-          <div class="sider-menu-item parent-open" :class="{ active: priceManageOpen }" @click="priceManageOpen = !priceManageOpen">
+          <div class="sider-menu-item parent-open" :class="{ active: activeParents.includes('price') }" @click="priceManageOpen = !priceManageOpen">
             <span class="menu-icon">💰</span>
             <span class="menu-label" v-show="!siderCollapsed">价格管理</span>
             <span class="menu-arrow" :class="{ open: priceManageOpen }" v-show="!siderCollapsed">▶</span>
@@ -557,6 +557,7 @@
         const deployOpen = ref(localStorage.getItem('menu_deployOpen') === 'true');
         const priceManageOpen = ref(localStorage.getItem('menu_priceManageOpen') !== 'false');
         const lotteryManageOpen = ref(true);
+        const activeParents = ref(['deploy']);
         watch(siderCollapsed, v => localStorage.setItem('menu_siderCollapsed', v));
         watch(opToolsOpen, v => localStorage.setItem('menu_opToolsOpen', v));
         watch(deployOpen, v => localStorage.setItem('menu_deployOpen', v));

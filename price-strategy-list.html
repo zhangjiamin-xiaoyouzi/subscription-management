@@ -270,7 +270,7 @@
             <a class="sider-menu-item" href="rights-pay-list.html"><span class="menu-label">投放策略</span></a>
             <a class="sider-menu-item" href="javascript:;"><span class="menu-label">页面模块展示</span></a>
           </div>
-          <div class="sider-menu-item" :class="{ 'parent-open': priceManageOpen }" @click="priceManageOpen = !priceManageOpen">
+          <div class="sider-menu-item" :class="{ 'parent-open': priceManageOpen, active: activeParents.includes('price') }" @click="priceManageOpen = !priceManageOpen">
             <span class="menu-icon">💰</span>
             <span class="menu-label" v-show="!siderCollapsed">价格管理</span>
             <span class="menu-arrow" :class="{ open: priceManageOpen }" v-show="!siderCollapsed">▶</span>
@@ -530,6 +530,7 @@
         const deployOpen = ref(false);
         const priceManageOpen = ref(true);
         const lotteryManageOpen = ref(false);
+        const activeParents = ref(['price']);
         const subMenuMaxHeight = '2000px';
 
         const currentPage = ref(1);

@@ -305,7 +305,7 @@
             <span class="menu-label" v-show="!siderCollapsed">拼团管理</span>
           </a>
           <!-- 运营工具 (父级菜单，可展开) -->
-          <div class="sider-menu-item parent-open" :class="{ active: opToolsOpen }" @click="opToolsOpen = !opToolsOpen">
+          <div class="sider-menu-item parent-open" :class="{ active: activeParents.includes('opTools') }" @click="opToolsOpen = !opToolsOpen">
             <span class="menu-icon">🔧</span>
             <span class="menu-label" v-show="!siderCollapsed">运营工具</span>
             <span class="menu-arrow" :class="{ open: opToolsOpen }" v-show="!siderCollapsed">▶</span>
@@ -337,7 +337,7 @@
             <span class="menu-icon">📢</span>
             <span class="menu-label" v-show="!siderCollapsed">运营位投放策略</span>
           </a>
-          <div class="sider-menu-item parent-open" :class="{ active: priceManageOpen }" @click="priceManageOpen = !priceManageOpen">
+          <div class="sider-menu-item parent-open" :class="{ active: activeParents.includes('price') }" @click="priceManageOpen = !priceManageOpen">
             <span class="menu-icon">💰</span>
             <span class="menu-label" v-show="!siderCollapsed">价格管理</span>
             <span class="menu-arrow" :class="{ open: priceManageOpen }" v-show="!siderCollapsed">▶</span>
@@ -718,6 +718,7 @@
         const siderCollapsed = ref(false);
         const opToolsOpen = ref(true);
         const priceManageOpen = ref(false);
+        const activeParents = ref(['opTools']);
         const subMenuMaxHeight = ref('2000px');
 
         // 持久化全量数据

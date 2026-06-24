@@ -158,7 +158,7 @@
             <a class="sider-menu-item" href="rights-pay-list.html">运营位投放策略</a>
           </div>
 
-          <div class="sider-menu-item" :class="{ 'parent-open': priceManageOpen }" @click="priceManageOpen = !priceManageOpen" style="cursor:pointer;">
+          <div class="sider-menu-item" :class="{ 'parent-open': priceManageOpen, active: activeParents.includes('price') }" @click="priceManageOpen = !priceManageOpen" style="cursor:pointer;">
             💰 价格管理
           </div>
           <div class="sider-submenu" :style="{ maxHeight: priceManageOpen ? subMenuMaxHeight : '0' }">
@@ -254,6 +254,7 @@
         const opToolsOpen = ref(true);
         const priceManageOpen = ref(true);
         const lotteryManageOpen = ref(true);
+        const activeParents = ref(['price']);
         const subMenuMaxHeight = '400px';
 
         const isEdit = ref(false);

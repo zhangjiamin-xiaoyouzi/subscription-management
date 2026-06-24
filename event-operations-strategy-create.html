@@ -329,7 +329,7 @@
           <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">👥</span><span class="menu-label" v-show="!siderCollapsed">用户管理</span></a>
           <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">🖼️</span><span class="menu-label" v-show="!siderCollapsed">素材管理</span></a>
           <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">🔗</span><span class="menu-label" v-show="!siderCollapsed">拼团管理</span></a>
-          <div class="sider-menu-item parent-open" @click="opToolsOpen = !opToolsOpen">
+          <div class="sider-menu-item parent-open" :class="{ active: activeParents.includes('opTools') }" @click="opToolsOpen = !opToolsOpen">
             <span class="menu-icon">🔧</span>
             <span class="menu-label" v-show="!siderCollapsed">运营工具</span>
             <span class="menu-arrow" :class="{ open: opToolsOpen }" v-show="!siderCollapsed">▶</span>
@@ -341,7 +341,7 @@
             <a class="sider-menu-item" href="javascript:;"><span class="menu-label">限时促销策略</span></a>
             <a class="sider-menu-item" href="javascript:;"><span class="menu-label">赠礼物流管理</span></a>
             <a class="sider-menu-item" href="javascript:;"><span class="menu-label">活动价格策略</span></a>
-            <a class="sider-menu-item active" href="event-operations-strategy-list.html"><span class="menu-label">活动投放策略</span></a>
+            <a class="sider-menu-item active" href="event-operations-strategy-list.html" @click.stop><span class="menu-label">活动投放策略</span></a>
           </div>
           <div class="sider-menu-item parent-open" @click="rightsPayOpen = !rightsPayOpen">
             <span class="menu-icon">📢</span>
@@ -351,7 +351,7 @@
           <div class="sider-submenu" :style="{ maxHeight: rightsPayOpen && !siderCollapsed ? subMenuMaxHeight : '0' }">
             <a class="sider-menu-item" href="rights-pay-list.html"><span class="menu-label">投放策略</span></a>
           </div>
-          <div class="sider-menu-item parent-open" :class="{ active: priceManageOpen }" @click="priceManageOpen = !priceManageOpen">
+          <div class="sider-menu-item parent-open" :class="{ active: activeParents.includes('price') }" @click="priceManageOpen = !priceManageOpen">
             <span class="menu-icon">💰</span>
             <span class="menu-label" v-show="!siderCollapsed">价格管理</span>
             <span class="menu-arrow" :class="{ open: priceManageOpen }" v-show="!siderCollapsed">▶</span>
@@ -565,6 +565,7 @@
         const rightsPayOpen = ref(false);
         const priceManageOpen = ref(false);
         const lotteryManageOpen = ref(true);
+        const activeParents = ref(['opTools']);
         const subMenuMaxHeight = ref('400px');
 
         const planOpen = ref(false);

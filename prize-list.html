@@ -286,14 +286,14 @@
             <a class="sider-menu-item" href="promotion-strategy-list.html"><span class="menu-label">促销套餐</span></a>
           </div>
           <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">📦</span><span class="menu-label" v-show="!siderCollapsed">产品管理</span></a>
-          <div class="sider-menu-item parent-open" @click="lotteryManageOpen = !lotteryManageOpen">
+          <div class="sider-menu-item parent-open" :class="{ active: activeParent === 'lottery' }" @click="lotteryManageOpen = !lotteryManageOpen">
             <span class="menu-icon">🎯</span>
             <span class="menu-label" v-show="!siderCollapsed">抽奖管理</span>
             <span class="menu-arrow" :class="{ open: lotteryManageOpen }" v-show="!siderCollapsed">▶</span>
           </div>
           <div class="sider-submenu" :style="{ maxHeight: lotteryManageOpen && !siderCollapsed ? subMenuMaxHeight : '0' }">
-            <a class="sider-menu-item active" href="prize-list.html"><span class="menu-label">奖品管理</span></a>
-            <a class="sider-menu-item" href="coupon-list.html"><span class="menu-label">抽奖券管理</span></a>
+            <a class="sider-menu-item active" href="prize-list.html" @click.stop><span class="menu-label">奖品管理</span></a>
+            <a class="sider-menu-item" href="coupon-list.html" @click.stop><span class="menu-label">抽奖券管理</span></a>
           </div>
           <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">🏆</span><span class="menu-label" v-show="!siderCollapsed">中奖管理</span></a>
           <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">📜</span><span class="menu-label" v-show="!siderCollapsed">订阅管理</span></a>
@@ -1067,6 +1067,7 @@
         const deployOpen = ref(false);
         const priceManageOpen = ref(false);
         const lotteryManageOpen = ref(true);
+        const activeParent = ref('lottery');
         const subMenuMaxHeight = ref('2000px');
 
         const allData = reactive(generateMockData());
