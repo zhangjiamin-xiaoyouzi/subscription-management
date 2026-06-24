@@ -149,6 +149,7 @@
     .pagination-bar button:hover:not(:disabled) { color: #ff4d88; border-color: #ff4d88; }
     .pagination-bar button.current { background: #ff4d88; color: #fff; border-color: #ff4d88; }
     .pagination-bar button:disabled { color: #d9d9d9; cursor: not-allowed; }
+    .select-field { height: 32px; padding: 0 8px; font-size: 13px; border: 1px solid #d9d9d9; border-radius: 4px; outline: none; background: #fff; cursor: pointer; }
 
     /* Modal */
     .modal-mask {
@@ -400,6 +401,13 @@
               :class="{ current: p === currentPage }"
               @click="goPage(p)">{{ p }}</button>
             <button :disabled="currentPage >= totalPages" @click="goPage(currentPage + 1)">下一页</button>
+            <span style="margin-left:8px;">
+              <select class="select-field" v-model.number="pageSize" @change="handlePageSizeChange" style="height:28px;">
+                <option :value="20">20 条/页</option>
+                <option :value="50">50 条/页</option>
+                <option :value="100">100 条/页</option>
+              </select>
+            </span>
           </div>
         </div>
       </main>
@@ -535,7 +543,7 @@
         const subMenuMaxHeight = '2000px';
 
         const currentPage = ref(1);
-        const pageSize = ref(10);
+        const pageSize = ref(20);
         const searchText = ref('');
         const onlyEnabled = ref(false);
 
@@ -852,6 +860,7 @@
             currentPage.value = p;
           }
         }
+        function handlePageSizeChange() { currentPage.value = 1; }
 
         function goCreate() {
           resetCreateForm();
@@ -959,7 +968,7 @@
           disableModal, viewModal, createModal,
           createForm, createPeriods, periodOptions, canCreate,
           allData, filteredData, totalFiltered, totalPages, pageNumbers, pageData,
-          handleSearch, goPage, goCreate, goView, goCopy,
+          handleSearch, goPage, handlePageSizeChange, goCreate, goView, goCopy,
           confirmDisable, confirmEnable, handleDisableOk,
           handleCreateSave,
         };

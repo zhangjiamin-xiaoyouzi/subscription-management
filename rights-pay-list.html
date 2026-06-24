@@ -423,6 +423,13 @@
               :class="{ current: p === currentPage }"
               @click="goPage(p)">{{ p }}</button>
             <button :disabled="currentPage >= totalPages" @click="goPage(currentPage + 1)">下一页</button>
+            <span style="margin-left:8px;">
+              <select class="select-field" v-model.number="pageSize" @change="handlePageSizeChange" style="height:28px;">
+                <option :value="20">20 条/页</option>
+                <option :value="50">50 条/页</option>
+                <option :value="100">100 条/页</option>
+              </select>
+            </span>
           </div>
         </div>
       </main>
@@ -563,7 +570,7 @@
         watch(siderCollapsed, v => localStorage.setItem('menu_siderCollapsed', v));
         const subMenuMaxHeight = '400px';
         const currentPage = ref(1);
-        const pageSize = ref(10);
+        const pageSize = ref(20);
         const sortDir = ref(''); // '', 'asc', 'desc'
         const selectedIds = reactive(new Set());
 
@@ -852,6 +859,7 @@
             currentPage.value = p;
           }
         }
+        function handlePageSizeChange() { currentPage.value = 1; }
 
         // 页面选择弹窗数据
         const pageListData = [
@@ -1039,7 +1047,7 @@
           startEdit, savePriority,
           openBatchPriority, confirmBatchPriority, getSelectedItems,
           handleSearch, addSearchCondition, handlePreview,
-          goPage, goCreate, goEdit, goView, goCopy,
+          goPage, handlePageSizeChange, goCreate, goEdit, goView, goCopy,
           extractPageKey, extractModuleKey, extractLocationKey,
           confirmDisable, handleDisableOk,
           pageSelectModal, allPages, vipPages, activityPages, rightsPages,

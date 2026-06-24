@@ -349,6 +349,13 @@
             <button :disabled="currentPage <= 1" @click="goPage(currentPage - 1)">‹ 上一页</button>
             <span><strong style="color:#ff4d88;">{{ currentPage }}</strong> / {{ maxPage }}</span>
             <button :disabled="currentPage >= maxPage" @click="goPage(currentPage + 1)">下一页 ›</button>
+            <span style="margin-left:8px;">
+              <select class="select-field" v-model.number="pageSize" @change="handlePageSizeChange" style="height:28px;">
+                <option :value="20">20 条/页</option>
+                <option :value="50">50 条/页</option>
+                <option :value="100">100 条/页</option>
+              </select>
+            </span>
           </div>
         </div>
       </main>
@@ -563,6 +570,7 @@
         }
 
         function goPage(page) { if (page >= 1 && page <= maxPage.value) { currentPage.value = page; fetchList(); } }
+        function handlePageSizeChange() { currentPage.value = 1; fetchList(); }
 
         function toggleSelectAll() {
           if (isPageAllSelected.value) {
@@ -697,7 +705,7 @@
           confirmModal, previewModal, statusText,
           siderCollapsed, opToolsOpen, deployOpen, priceManageOpen, lotteryManageOpen, subMenuMaxHeight, activeParents,
           selectedIds, isPageAllSelected, batchModal,
-          handleSearch, handleActiveOnlyChange, switchTab, toggleSort, goPage,
+          handleSearch, handleActiveOnlyChange, switchTab, toggleSort, goPage, handlePageSizeChange,
           toggleSelectAll, toggleSelectRow,
           openBatchPriority, confirmBatchPriority, getSelectedItems,
           goCreate, goDetail, goEdit, goCopy,

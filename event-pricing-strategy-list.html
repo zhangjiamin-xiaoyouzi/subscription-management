@@ -327,6 +327,13 @@
               :style="p === currentPage ? 'border-color:#ff4d88; color:#ff4d88;' : ''"
               @click="goPage(p)">{{ p }}</button>
             <button :disabled="currentPage >= totalPages" @click="goPage(currentPage + 1)">下一页</button>
+            <span style="margin-left:8px;">
+              <select class="select-field" v-model.number="pageSize" @change="handlePageSizeChange" style="height:28px;">
+                <option :value="20">20 条/页</option>
+                <option :value="50">50 条/页</option>
+                <option :value="100">100 条/页</option>
+              </select>
+            </span>
           </div>
         </div>
       </main>
@@ -401,7 +408,7 @@
         watch(siderCollapsed, v => localStorage.setItem('menu_siderCollapsed', v));
         const subMenuMaxHeight = '500px';
         const currentPage = ref(1);
-        const pageSize = ref(10);
+        const pageSize = ref(20);
         const sortDir = ref(''); // '', 'asc', 'desc'
         const openDropdownId = ref(null);
         const isActiveOnly = ref(false);
@@ -690,6 +697,7 @@
             openDropdownId.value = null;
           }
         }
+        function handlePageSizeChange() { currentPage.value = 1; }
 
         function confirmToggle(row) {
           openDropdownId.value = null;
@@ -738,7 +746,7 @@
           toggleSort, startEdit, savePriority, toggleDropdown,
           toggleSelectAll, toggleSelectRow,
           openBatchPriority, confirmBatchPriority, getSelectedItems,
-          handleSearch, handleActiveOnlyChange, goPage,
+          handleSearch, handleActiveOnlyChange, goPage, handlePageSizeChange,
           confirmToggle, handleConfirmOk,
           goView, goCreate, goEdit, goCopy,
         };

@@ -195,6 +195,7 @@
     }
     .pagination-bar button:hover:not(:disabled) { border-color: #ff4d88; color: #ff4d88; }
     .pagination-bar button:disabled { color: #ccc; cursor: not-allowed; }
+    .select-field { height: 32px; padding: 0 8px; font-size: 13px; border: 1px solid #d9d9d9; border-radius: 4px; outline: none; background: #fff; cursor: pointer; }
     .pagination-bar .page-active { color: #ff4d88; font-weight: 500; margin: 0 4px; }
 
     /* ========== 下拉菜单 ========== */
@@ -511,6 +512,13 @@
               <button :disabled="currentPage <= 1" @click="goPage(currentPage - 1)">‹ 上一页</button>
               <span><strong style="color:#ff4d88;">{{ currentPage }}</strong> / {{ maxPage }}</span>
               <button :disabled="currentPage >= maxPage" @click="goPage(currentPage + 1)">下一页 ›</button>
+              <span style="margin-left:8px;">
+                <select class="select-field" v-model.number="pageSize" @change="handlePageSizeChange" style="height:28px;">
+                  <option :value="20">20 条/页</option>
+                  <option :value="50">50 条/页</option>
+                  <option :value="100">100 条/页</option>
+                </select>
+              </span>
             </div>
           </div>
         </div>
@@ -825,6 +833,7 @@
         }
 
         function goPage(page) { if (page >= 1 && page <= maxPage.value) { currentPage.value = page; fetchList(); } }
+        function handlePageSizeChange() { currentPage.value = 1; fetchList(); }
 
         // ===== 批量选择 =====
         function toggleSelectAll() {
@@ -989,7 +998,7 @@
           openDropdownId, confirmModal, previewModal, statusText,
           siderCollapsed, opToolsOpen, deployOpen, subMenuMaxHeight, activeParents,
           selectedIds, isPageAllSelected, batchModal,
-          handleSearch, handleActiveOnlyChange, toggleSort, goPage,
+          handleSearch, handleActiveOnlyChange, toggleSort, goPage, handlePageSizeChange,
           toggleSelectAll, toggleSelectRow,
           openBatchPriority, confirmBatchPriority,
           goCreate, goDetail, goEdit, goCopy,

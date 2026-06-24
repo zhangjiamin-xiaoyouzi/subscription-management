@@ -142,6 +142,7 @@
     }
     .pagination-bar button:hover { border-color: #ff4d88; color: #ff4d88; }
     .pagination-bar button:disabled { opacity: .4; cursor: not-allowed; }
+    .select-field { height: 32px; padding: 0 8px; font-size: 13px; border: 1px solid #d9d9d9; border-radius: 4px; outline: none; background: #fff; cursor: pointer; }
 
     /* ========== 弹窗 ========== */
     .modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 1000; display: flex; align-items: center; justify-content: center; }
@@ -377,6 +378,13 @@
               <span>{{ currentPage }} / {{ totalPages }}</span>
               <button :disabled="currentPage >= totalPages" @click="currentPage++">下一页</button>
               <button :disabled="currentPage >= totalPages" @click="currentPage = totalPages">末页</button>
+              <span style="margin-left:8px;">
+                <select class="select-field" v-model.number="pageSize" @change="handlePageSizeChange" style="height:28px;">
+                  <option :value="20">20 条/页</option>
+                  <option :value="50">50 条/页</option>
+                  <option :value="100">100 条/页</option>
+                </select>
+              </span>
             </div>
           </div>
         </div>
@@ -790,6 +798,8 @@
           fetchList();
         }
 
+        function handlePageSizeChange() { currentPage.value = 1; fetchList(); }
+
         // ---- 批量选择 ----
         function toggleSelectAll() {
           if (isPageAllSelected.value) {
@@ -988,7 +998,7 @@
           enumData,
           confirmModal, previewModal,
           statusText,
-          handleSearch, handleActiveOnlyChange, toggleSort,
+          handleSearch, handleActiveOnlyChange, toggleSort, handlePageSizeChange,
           toggleSelectAll, toggleSelectRow,
           openBatchPriority, confirmBatchPriority, getSelectedItems,
           toggleDropdown, handleToggleStatus, handlePreview,

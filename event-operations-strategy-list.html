@@ -170,6 +170,7 @@
     }
     .pagination-bar button:hover:not(:disabled) { border-color: #ff4d88; color: #ff4d88; }
     .pagination-bar button:disabled { color: #ccc; cursor: not-allowed; }
+    .select-field { height: 32px; padding: 0 8px; font-size: 13px; border: 1px solid #d9d9d9; border-radius: 4px; outline: none; background: #fff; cursor: pointer; }
     .pagination-bar .page-active { color: #ff4d88; font-weight: 500; margin: 0 4px; }
 
     .dropdown-wrapper { position: relative; display: inline-block; margin-left: 8px; }
@@ -413,6 +414,13 @@
               <button :disabled="currentPage <= 1" @click="goPage(currentPage - 1)">‹ 上一页</button>
               <span><strong style="color:#ff4d88;">{{ currentPage }}</strong> / {{ maxPage }}</span>
               <button :disabled="currentPage >= maxPage" @click="goPage(currentPage + 1)">下一页 ›</button>
+              <span style="margin-left:8px;">
+                <select class="select-field" v-model.number="pageSize" @change="handlePageSizeChange" style="height:28px;">
+                  <option :value="20">20 条/页</option>
+                  <option :value="50">50 条/页</option>
+                  <option :value="100">100 条/页</option>
+                </select>
+              </span>
             </div>
           </div>
         </div>
@@ -539,7 +547,7 @@
         const tableData = ref([]);
         const totalCount = ref(0);
         const currentPage = ref(1);
-        const pageSize = ref(10);
+        const pageSize = ref(20);
         const sortDir = ref('desc');        // 'asc' | 'desc' | null
         const editingRowId = ref(null);
         const editingValue = ref(1);
@@ -614,6 +622,8 @@
           currentPage.value = p;
           fetchList();
         }
+
+        function handlePageSizeChange() { currentPage.value = 1; fetchList(); }
 
         // ===== 批量选择 =====
         function toggleSelectAll() {
@@ -777,7 +787,7 @@
           editingRowId, editingValue, openDropdownId, activeOnly,
           searchForm, confirmModal, maxPage,
           selectedIds, isPageAllSelected, batchModal,
-          handleSearch, toggleSort, goPage, toggleDropdown,
+          handleSearch, toggleSort, goPage, handlePageSizeChange, toggleDropdown,
           toggleSelectAll, toggleSelectRow,
           openBatchPriority, confirmBatchPriority, getSelectedItems,
           startEdit, savePriority, showResDetail,

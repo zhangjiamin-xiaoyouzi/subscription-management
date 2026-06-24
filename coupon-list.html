@@ -120,6 +120,7 @@
     .pagination-bar .page-btn.active { background: #ff4d88; color: #fff; border-color: #ff4d88; }
     .pagination-bar .page-btn:disabled { color: #d9d9d9; cursor: not-allowed; }
     .pagination-bar .page-info { margin: 0 4px; }
+    .select-field { height: 32px; padding: 0 8px; font-size: 13px; border: 1px solid #d9d9d9; border-radius: 4px; outline: none; background: #fff; cursor: pointer; }
 
     /* Modal */
     .modal-overlay {
@@ -350,6 +351,13 @@
           >{{ p }}</button>
           <button class="page-btn" :disabled="currentPage >= maxPage" @click="goPage(currentPage + 1)">▶</button>
           <span class="page-info">第 {{ currentPage }}/{{ maxPage }} 页</span>
+          <span style="margin-left:8px;">
+            <select class="select-field" v-model.number="pageSize" @change="handlePageSizeChange" style="height:28px;">
+              <option :value="20">20 条/页</option>
+              <option :value="50">50 条/页</option>
+              <option :value="100">100 条/页</option>
+            </select>
+          </span>
         </div>
       </div>
     </main>
@@ -563,7 +571,7 @@
 
       // 分页
       const currentPage = ref(1);
-      const pageSize = ref(15);
+      const pageSize = ref(20);
 
       const filteredData = computed(() => {
         return allData.filter(item => {
@@ -598,6 +606,7 @@
 
       function handleSearch() { currentPage.value = 1; fetchList(); }
       function goPage(page) { if (page >= 1 && page <= maxPage.value) { currentPage.value = page; fetchList(); } }
+      function handlePageSizeChange() { currentPage.value = 1; fetchList(); }
 
       // ====== 添加弹窗 ======
       const addModalVisible = ref(false);
@@ -720,7 +729,7 @@
       return {
         siderCollapsed, opToolsOpen, deployOpen, priceManageOpen, lotteryManageOpen, subMenuMaxHeight, activeParents,
         searchForm, pageData, currentPage, totalCount, maxPage, visiblePages,
-        handleSearch, goPage,
+        handleSearch, goPage, handlePageSizeChange,
         addModalVisible, addForm, addErrors, openAddModal, closeAddModal, submitAdd,
         editModalVisible, editForm, editErrors, openEditModal, closeEditModal, submitEdit,
         handleOffline, handleSceneEdit, handleManualSend, handleDetail,
