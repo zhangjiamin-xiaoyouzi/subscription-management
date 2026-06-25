@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -323,6 +323,22 @@
     .record-banner-material-meta .meta-value {
       font-size: 13px; color: rgba(0,0,0,.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
+    .material-option-tabs {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .material-option-tab {
+      display: flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1px solid #d9d9d9;
+      border-radius: 2px; background: #fff; cursor: pointer; transition: all .2s; font-size: 12px;
+    }
+    .material-option-tab:hover { border-color: #ff4d88; background: #fff7fa; }
+    .material-option-tab.active { border-color: #ff4d88; background: #fff0f5; color: #ff4d88; }
+    .material-option-tab-label { font-weight: 500; white-space: nowrap; }
+    .material-option-tab-desc { color: rgba(0,0,0,.45); max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .material-option-tab.active .material-option-tab-desc { color: #ff4d88; }
+    .material-option-tab-actions { display: flex; gap: 2px; margin-left: 4px; }
+    .material-option-content {
+      border: 1px solid #f0f0f0; border-radius: 2px; padding: 12px 14px; background: #fafafa;
+    }
     .record-banner-upload {
       display: flex; align-items: stretch; gap: 16px;
     }
@@ -387,12 +403,57 @@
       display: flex; flex-direction: column; gap: 4px;
     }
 
+    /* Content Directory */
+    .record-banner-directory {
+      background: #fff; border: 1px solid #f0f0f0; border-radius: 2px; position: sticky; top: 16px;
+      max-height: calc(100vh - 48px); overflow-y: auto; display: flex; flex-direction: column;
+      align-self: start;
+    }
+    .directory-header {
+      display: flex; align-items: center; justify-content: space-between; padding: 14px 16px;
+      border-bottom: 1px solid #f0f0f0; flex-shrink: 0;
+    }
+    .directory-title { font-size: 14px; font-weight: 600; color: rgba(0,0,0,.85); }
+    .btn-dir-add {
+      height: 28px; padding: 0 12px; border: 1px solid #ff4d88; border-radius: 2px;
+      background: #fff; color: #ff4d88; font-size: 12px; cursor: pointer; transition: all .2s;
+    }
+    .btn-dir-add:hover { background: #fff0f6; }
+    .directory-list { flex: 1; overflow-y: auto; padding: 8px; }
+    .directory-item {
+      padding: 10px 12px; border-radius: 4px; cursor: pointer; transition: all .15s;
+      border: 1px solid transparent; margin-bottom: 6px;
+    }
+    .directory-item:hover { background: #fafafa; border-color: #f0f0f0; }
+    .directory-item.active {
+      background: #fff0f6; border-color: #ffd4e3; box-shadow: 0 1px 4px rgba(255,77,136,.06);
+    }
+    .directory-item-header {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+    }
+    .directory-item-num { font-size: 13px; font-weight: 600; color: rgba(0,0,0,.85); }
+    .directory-item-badge {
+      font-size: 11px; padding: 1px 6px; border-radius: 999px;
+      background: #fff0f6; color: #ff4d88; border: 1px solid #ffd4e3;
+    }
+    .directory-item-actions { margin-left: auto; display: flex; gap: 4px; }
+    .btn-dir-action {
+      width: 24px; height: 24px; border: none; border-radius: 2px; background: transparent;
+      cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center;
+      transition: all .15s; padding: 0;
+    }
+    .btn-dir-action:hover { background: #f0f0f0; }
+    .btn-dir-action:disabled { opacity: .35; cursor: not-allowed; }
+    .directory-item-body { display: flex; flex-direction: column; gap: 4px; }
+    .dir-info { display: flex; align-items: center; font-size: 12px; }
+    .dir-label { min-width: 56px; flex-shrink: 0; color: rgba(0,0,0,.45); white-space: nowrap; }
+    .dir-value { color: rgba(0,0,0,.65); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .active .dir-label { color: #ff4d88; }
+    .active .dir-value { color: rgba(0,0,0,.85); }
+
     @media (max-width: 1280px) {
       .record-banner-panel {
         grid-template-columns: 1fr;
-      }
-      .record-banner-preview {
-        position: static;
       }
     }
 
@@ -1244,7 +1305,7 @@
                     </div>
                   </div>
 
-                  <div class="record-banner-field">
+                  <div class="record-banner-field full">
                     <div class="record-banner-label">记录项:</div>
                     <div class="record-banner-control">
                       <div class="record-banner-select" v-click-outside="() => closeRecordBannerSelect('recordItem')">
@@ -1253,7 +1314,7 @@
                         </div>
                         <span class="select-arrow">▾</span>
                         <div class="select-dropdown" v-show="recordBannerForm.recordItemOpen">
-                          <div class="select-option" :class="{ selected: recordBannerForm.recordItem === '' }" @click.stop="updateRecordBannerField('recordItem', '')">请选择</div>
+                          <div class="select-option" :class="{ selected: recordBannerForm.recordItem === '' }" @click.stop="updateRecordBannerField('recordItem', '', handleRecordItemChange)">请选择</div>
                           <div class="select-option" v-for="item in recordBannerOptions.recordItems" :key="item" :class="{ selected: recordBannerForm.recordItem === item }" @click.stop="updateRecordBannerField('recordItem', item, handleRecordItemChange)">{{ item }}</div>
                         </div>
                       </div>
@@ -1288,7 +1349,7 @@
                     </div>
                   </div>
 
-                  <div class="record-banner-field">
+                  <div class="record-banner-field full">
                     <div class="record-banner-label">分析结果(8.97.0及以上版本配置):</div>
                     <div class="record-banner-control" :class="{ disabled: !recordBannerForm.recordItem }">
                       <div class="record-banner-select" :class="{ 'is-disabled': !recordBannerForm.recordItem }" v-click-outside="() => closeRecordBannerSelect('analysisResultNew')">
@@ -1305,7 +1366,7 @@
                     </div>
                   </div>
 
-                  <div class="record-banner-field">
+                  <div class="record-banner-field full">
                     <div class="record-banner-label">分析结果(8.93.0~8.96.0版本配置):</div>
                     <div class="record-banner-control" :class="{ disabled: !recordBannerForm.recordItem }">
                       <div class="record-banner-select" :class="{ 'is-disabled': !recordBannerForm.recordItem }" v-click-outside="() => closeRecordBannerSelect('analysisResultOld')">
@@ -1339,42 +1400,44 @@
                     </div>
                   </div>
 
+                  <!-- 素材选项区 -->
                   <div class="record-banner-field full">
-                    <div class="record-banner-label required">选择素材:</div>
+                    <div class="record-banner-label required">素材选项:</div>
                     <div class="record-banner-control">
-                      <div class="record-banner-material">
-                        <div class="record-banner-select" v-click-outside="() => closeRecordBannerSelect('material')">
-                          <div class="select-trigger" :class="{ open: recordBannerForm.materialOpen }" @click="recordBannerForm.materialOpen = !recordBannerForm.materialOpen">
-                            <span :class="{ placeholder: !recordBannerForm.materialId }">{{ selectedRecordBannerMaterialLabel }}</span>
-                          </div>
-                          <span class="select-arrow">▾</span>
-                          <div class="select-dropdown" v-show="recordBannerForm.materialOpen">
-                            <div class="select-option" :class="{ selected: recordBannerForm.materialId === '' }" @click.stop="selectRecordBannerMaterial('')">请选择</div>
-                            <div class="select-option" v-for="item in recordBannerOptions.materials" :key="item.id" :class="{ selected: recordBannerForm.materialId === item.id }" @click.stop="selectRecordBannerMaterial(item.id)">{{ item.name }}</div>
+                      <div class="material-option-tabs">
+                        <div
+                          v-for="(opt, oi) in recordBannerForm.materialOptions"
+                          :key="opt.id"
+                          class="material-option-tab"
+                          :class="{ active: oi === recordBannerForm.activeMaterialOptionIndex }"
+                          @click="recordBannerForm.activeMaterialOptionIndex = oi"
+                        >
+                          <span class="material-option-tab-label">选项{{ oi + 1 }}</span>
+                          <span class="material-option-tab-desc" v-if="opt.materialId">{{ getMatOptMaterialName(opt.materialId) }}</span>
+                          <span class="material-option-tab-desc" v-else>未设置</span>
+                          <div class="material-option-tab-actions" @click.stop>
+                            <button class="btn-dir-action" type="button" title="复制选项" @click="copyMaterialOption(oi)">📋</button>
+                            <button class="btn-dir-action" type="button" title="删除选项" @click="deleteMaterialOption(oi)" :disabled="recordBannerForm.materialOptions.length <= 1">🗑</button>
                           </div>
                         </div>
-                        <a class="btn-cancel" href="https://test-admin.meiyou.com/app/test-sub-admin.seeyouyima.com/material-library/list?tab_id=8" target="_blank" rel="noopener noreferrer">管理素材</a>
-                        <button class="btn-cancel" type="button" @click="refreshRecordBannerMaterials">刷新</button>
+                        <button class="btn-dir-add" type="button" @click="copyAllMaterialOptions" title="复制整组" style="flex-shrink:0;padding:4px 10px;">📑复制整组</button>
+                        <button class="btn-dir-add" type="button" @click="addMaterialOption" title="新建空白选项" style="flex-shrink:0;padding:4px 10px;">＋新建</button>
                       </div>
-                      <div class="record-banner-material-card" v-if="selectedRecordBannerMaterial">
-                        <div class="record-banner-material-option">选项1：</div>
-                        <div class="record-banner-material-meta">
-                          <div class="meta-item">
-                            <div class="meta-label">主标题</div>
-                            <div class="meta-value">{{ recordBannerForm.title || selectedRecordBannerMaterial.title }}</div>
+
+                      <div class="material-option-content" v-if="activeMaterialOption">
+                        <div class="record-banner-material">
+                          <div class="record-banner-select" v-click-outside="() => { if (activeMaterialOption) activeMaterialOption.materialOpen = false }">
+                            <div class="select-trigger" :class="{ open: activeMaterialOption.materialOpen }" @click="activeMaterialOption.materialOpen = !activeMaterialOption.materialOpen">
+                              <span :class="{ placeholder: !activeMaterialOption.materialId }">{{ selectedRecordBannerMaterialLabel }}</span>
+                            </div>
+                            <span class="select-arrow">▾</span>
+                            <div class="select-dropdown" v-show="activeMaterialOption.materialOpen">
+                              <div class="select-option" :class="{ selected: activeMaterialOption.materialId === '' }" @click.stop="selectRecordBannerMaterial('')">请选择</div>
+                              <div class="select-option" v-for="item in recordBannerOptions.materials" :key="item.id" :class="{ selected: activeMaterialOption.materialId === item.id }" @click.stop="selectRecordBannerMaterial(item.id)">{{ item.name }}</div>
+                            </div>
                           </div>
-                          <div class="meta-item">
-                            <div class="meta-label">副标题</div>
-                            <div class="meta-value">{{ recordBannerForm.subtitle || selectedRecordBannerMaterial.subtitle }}</div>
-                          </div>
-                          <div class="meta-item">
-                            <div class="meta-label">素材ID</div>
-                            <div class="meta-value">{{ selectedRecordBannerMaterial.id }}</div>
-                          </div>
-                          <div class="meta-item">
-                            <div class="meta-label">推荐场景</div>
-                            <div class="meta-value">{{ selectedRecordBannerMaterial.scene }}</div>
-                          </div>
+                          <a class="btn-cancel" href="https://test-admin.meiyou.com/app/test-sub-admin.seeyouyima.com/material-library/list?tab_id=8" target="_blank" rel="noopener noreferrer">管理素材</a>
+                          <button class="btn-cancel" type="button" @click="refreshRecordBannerMaterials">刷新</button>
                         </div>
                       </div>
                     </div>
@@ -1383,14 +1446,14 @@
                   <div class="record-banner-field">
                     <div class="record-banner-label">主标题:</div>
                     <div class="record-banner-control">
-                      <input class="input-field" type="text" placeholder="请输入" v-model="recordBannerForm.title">
+                      <input class="input-field" type="text" placeholder="请输入" v-model="activeMaterialOption.title">
                     </div>
                   </div>
 
                   <div class="record-banner-field">
                     <div class="record-banner-label">副标题:</div>
                     <div class="record-banner-control">
-                      <input class="input-field" type="text" placeholder="请输入" v-model="recordBannerForm.subtitle">
+                      <input class="input-field" type="text" placeholder="请输入" v-model="activeMaterialOption.subtitle">
                     </div>
                   </div>
 
@@ -1401,9 +1464,6 @@
                         <div class="record-banner-upload-box" @click="mockUploadRecordBannerImage">
                           <div class="record-banner-upload-plus">＋</div>
                           <div>上传图片</div>
-                        </div>
-                        <div class="record-banner-upload-preview">
-                          <img :src="recordBannerPreviewImage" alt="横幅预览">
                         </div>
                         <div class="record-banner-upload-actions">
                           <div class="record-banner-upload-btns">
@@ -1423,61 +1483,69 @@
                   <div class="record-banner-field">
                     <div class="record-banner-label">跳转地址:</div>
                     <div class="record-banner-control">
-                      <div class="record-banner-select" v-click-outside="() => closeRecordBannerSelect('jumpTarget')">
-                        <div class="select-trigger" :class="{ open: recordBannerForm.jumpTargetOpen }" @click="toggleRecordBannerSelect('jumpTarget')">
-                          <span :class="{ placeholder: !recordBannerForm.jumpTarget }">{{ recordBannerForm.jumpTarget || '请选择' }}</span>
+                      <div class="record-banner-select" v-click-outside="() => { if (activeMaterialOption) activeMaterialOption.jumpTargetOpen = false }">
+                        <div class="select-trigger" :class="{ open: activeMaterialOption.jumpTargetOpen }" @click="activeMaterialOption.jumpTargetOpen = !activeMaterialOption.jumpTargetOpen">
+                          <span :class="{ placeholder: !activeMaterialOption.jumpTarget }">{{ activeMaterialOption.jumpTarget || '请选择' }}</span>
                         </div>
                         <span class="select-arrow">▾</span>
-                        <div class="select-dropdown" v-show="recordBannerForm.jumpTargetOpen">
-                          <div class="select-option" :class="{ selected: recordBannerForm.jumpTarget === '' }" @click.stop="updateRecordBannerField('jumpTarget', '')">请选择</div>
-                          <div class="select-option" v-for="item in recordBannerOptions.jumpTargets" :key="item" :class="{ selected: recordBannerForm.jumpTarget === item }" @click.stop="updateRecordBannerField('jumpTarget', item)">{{ item }}</div>
+                        <div class="select-dropdown" v-show="activeMaterialOption.jumpTargetOpen">
+                          <div class="select-option" :class="{ selected: activeMaterialOption.jumpTarget === '' }" @click.stop="activeMaterialOption.jumpTarget = ''; activeMaterialOption.jumpTargetOpen = false">请选择</div>
+                          <div class="select-option" v-for="item in recordBannerOptions.jumpTargets" :key="item" :class="{ selected: activeMaterialOption.jumpTarget === item }" @click.stop="activeMaterialOption.jumpTarget = item; activeMaterialOption.jumpTargetOpen = false">{{ item }}</div>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div class="record-banner-field">
+                  <div class="record-banner-field full">
                     <div class="record-banner-label">横幅过期天数:</div>
                     <div class="record-banner-control">
-                      <div class="record-banner-inline">
-                        <div class="spinbutton-wrap" style="max-width: 120px;">
-                          <button class="spin-btn" type="button" @click="changeRecordBannerExpireDays(-1)">−</button>
-                          <input class="spin-input" type="number" min="0" v-model.number="recordBannerForm.expireDays">
-                          <button class="spin-btn" type="button" @click="changeRecordBannerExpireDays(1)">＋</button>
-                        </div>
-                        <span class="record-banner-tip" style="margin-top:0;">天</span>
-                      </div>
+                      <input class="input-field" type="text" placeholder="请输入天数，≤30" v-model="recordBannerForm.expireDays" style="max-width:200px;">
+                      <div class="record-banner-tip">未填写表示横幅永久有效</div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div class="record-banner-preview">
-                <div class="record-banner-preview-title">预览</div>
-                <div class="record-banner-preview-card">
-                  <div class="record-banner-preview-media">
-                    <img v-if="recordBannerPreviewImage" :src="recordBannerPreviewImage" alt="记录横幅预览" style="width:100%;height:100%;object-fit:cover;display:block;">
-                    <span v-else>横幅预览</span>
-                  </div>
-                  <div class="record-banner-preview-body">
-                    <div class="record-banner-preview-tag">{{ recordBannerPreviewTag }}</div>
-                    <div class="record-banner-preview-main">{{ recordBannerForm.title || '主标题预览' }}</div>
-                    <div class="record-banner-preview-sub">{{ recordBannerForm.subtitle || '副标题预览' }}</div>
-                    <div class="record-banner-preview-meta">
-                      <span>跳转地址：{{ recordBannerForm.jumpTarget || '未选择' }}</span>
-                      <span>素材：{{ selectedRecordBannerMaterialLabel }}</span>
-                      <span>过期天数：{{ recordBannerForm.expireDays || 0 }}天</span>
+              <div class="record-banner-directory">
+                <div class="directory-header">
+                  <span class="directory-title">投放内容目录</span>
+                  <button class="btn-dir-add" type="button" @click="addContentGroup">＋ 添加组</button>
+                </div>
+                <div class="directory-list">
+                  <div
+                    v-for="(group, gi) in recordBannerContentGroups"
+                    :key="group.id"
+                    class="directory-item"
+                    :class="{ active: gi === activeContentGroupIndex }"
+                    @click="selectContentGroup(gi)"
+                  >
+                    <div class="directory-item-header">
+                      <span class="directory-item-num">第{{ gi + 1 }}组</span>
+                      <span class="directory-item-badge" v-if="gi === activeContentGroupIndex">当前编辑</span>
+                      <div class="directory-item-actions" @click.stop>
+                        <button class="btn-dir-action" type="button" title="复制" @click="copyContentGroup(gi)">📋</button>
+                        <button class="btn-dir-action" type="button" title="删除" @click="deleteContentGroup(gi)" :disabled="recordBannerContentGroups.length <= 1">🗑</button>
+                      </div>
+                    </div>
+                    <div class="directory-item-body">
+                      <div class="dir-info"><span class="dir-label">类型</span><span class="dir-value">{{ group.typeMode === 'period' ? '时期' : '月经第x天' }}</span></div>
+                      <div class="dir-info" v-if="group.typeMode === 'period'"><span class="dir-label">时期</span><span class="dir-value">{{ group.period || '未设置' }}</span></div>
+                      <div class="dir-info"><span class="dir-label">记录项</span><span class="dir-value">{{ group.recordItem || '未设置' }}</span></div>
+                      <div class="dir-info"><span class="dir-label">9.09.0+</span><span class="dir-value">{{ group.analysisResultLatest.length }}项</span></div>
+                      <div class="dir-info"><span class="dir-label">8.97.0+</span><span class="dir-value">{{ group.analysisResultNew ? '1项' : '0项' }}</span></div>
+                      <div class="dir-info"><span class="dir-label">素材</span><span class="dir-value">{{ getConfiguredMaterialCount(group) }}</span></div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <button class="btn-dashed-block" @click="openCompModal" v-else-if="selectedComponents.length === 0">
-              <span style="font-size:14px;">＋</span> 从组件库选择
-            </button>
+            <template v-if="!isRecordBannerPath && !isFixedPriceCardPath">
+              <button class="btn-dashed-block" @click="openCompModal" v-if="selectedComponents.length === 0">
+                <span style="font-size:14px;">＋</span> 从组件库选择
+              </button>
 
-            <div class="placement-section-layout" v-else-if="selectedComponents.length > 0">
+              <div class="placement-section-layout" v-if="selectedComponents.length > 0">
               <div class="placement-editor">
                 <button class="btn-dashed-block" @click="openCompModal" style="margin-bottom:12px;" v-if="!isFixedPriceCardPath">
                   <span style="font-size:14px;">＋</span> 从组件库选择
@@ -1743,6 +1811,7 @@
                 </div>
               </div>
             </div>
+            </template>
           </div>
 
           <!-- 选择你要管理的页面 -->
@@ -2071,81 +2140,94 @@
           dragIndex: null,
           dragOverIndex: null,
           recordBannerOptions: {
-            periods: ['经期', '排卵期', '备孕期', '孕早期', '孕中期', '孕晚期'],
-            recordItems: ['大姨妈来了', '大姨妈走了', '流量', '痛经', '颜色', '爱爱', '症状', '白带'],
+            periods: ['经期周期阶段', '备孕经期周期阶段', '宝宝月龄', '孕周阶段'],
+            recordItems: ['1-大姨妈来了', '100-大姨妈走了', '24-流量', '23-痛经', '39-颜色', '2-爱爱', '7-经期症状', '8-非经期症状', '13-白带'],
             analysisByRecordItem: {
-              '大姨妈来了': {
+              '1-大姨妈来了': {
                 newer: ['【101-1-2】本周期-周期偏长-异常', '【101-1-3】本周期-周期偏短-异常', '【101-1-1】本周期-周期正常', '【101-2-1】近半年-本次周期缩短-明显变化', '【101-2-3】近半年-本次周期延长-明显变化', '【101-2-4】近半年-周期连续缩短-明显变化', '【101-2-5】近半年-周期连续延长-明显变化', '【101-2-8】近半年-周期偏短偶发-异常', '【101-2-9】近半年-周期偏短频发-明显异常', '【101-2-10】近半年-周期偏长偶发-异常', '【101-2-11】近半年-周期偏长频发-明显异常', '【102-1-2】本周期-不规律-异常', '【102-2-2】近半年-不规律偶发-异常', '【102-2-3】近半年-不规律频发-明显异常'],
                 older: ['【2】本周期-周期偏长-异常', '【3】本周期-周期偏短-异常', '【1】本周期-周期正常'],
+                latest: ['【201-1-1】本周期-周期天数-正常', '【201-1-2】本周期-周期偏短-轻度偏离', '【201-1-3】本周期-周期偏长-轻度偏离', '【201-1-4】本周期-周期过短-异常', '【201-1-5】本周期-周期过长-异常', '【201-1-6】本周期-周期过短-严重异常', '【201-1-7】本周期-周期过长-严重异常', '【201-1-8】本周期-周期天数-数据不足', '【201-2-1】本周期-周期规律-正常', '【201-2-2】本周期-周期规律-轻度偏离', '【201-2-3】本周期-周期规律-中度偏离', '【201-2-4】本周期-周期不规律-异常', '【201-2-5】本周期-周期规律性-数据不足', '【202-1-1】近2个周期对比-周期天数-周期缩短', '【202-1-2】近2个周期对比-周期天数-周期稳定', '【202-1-3】近2个周期对比-周期天数-周期延长', '【203-1-1】近3个周期对比-周期天数-逐渐延长', '【203-1-2】近3个周期对比-周期天数-逐渐缩短', '【203-1-3】近3个周期对比-周期天数-忽长忽短', '【203-1-4】近3个周期对比-周期天数-周期稳定', '【203-1-5】近3个周期对比-周期天数-单次变化'],
                 subRecords: ['状态']
               },
-              '大姨妈走了': {
+              '100-大姨妈走了': {
                 newer: ['【101-1-2】本周期-周期偏长-异常', '【101-1-3】本周期-周期偏短-异常', '【101-1-1】本周期-周期正常', '【101-2-1】近半年-本次周期缩短-明显变化', '【101-2-3】近半年-本次周期延长-明显变化', '【101-2-4】近半年-周期连续缩短-明显变化', '【101-2-5】近半年-周期连续延长-明显变化', '【101-2-8】近半年-周期偏短偶发-异常', '【101-2-9】近半年-周期偏短频发-明显异常', '【101-2-10】近半年-周期偏长偶发-异常', '【101-2-11】近半年-周期偏长频发-明显异常', '【102-1-2】本周期-不规律-异常', '【102-2-2】近半年-不规律偶发-异常', '【102-2-3】近半年-不规律频发-明显异常'],
                 older: ['【2】本周期-周期偏长-异常', '【3】本周期-周期偏短-异常', '【1】本周期-周期正常'],
+                latest: ['【201-3-1】本周期-经期天数-正常', '【201-3-2】本周期-月经偏短-轻度偏离', '【201-3-3】本周期-月经偏长-轻度偏离', '【201-3-4】本周期-月经过长-异常', '【201-3-5】本周期-经期天数-数据不足', '【202-2-1】近2个周期对比-经期天数-经期缩短', '【202-2-2】近2个周期对比-经期天数-经期稳定', '【202-2-3】近2个周期对比-经期天数-经期延长', '【203-2-1】近3个周期对比-经期天数-逐渐延长', '【203-2-2】近3个周期对比-经期天数-逐渐缩短', '【203-2-3】近3个周期对比-经期天数-忽长忽短', '【203-2-4】近3个周期对比-经期天数-经期稳定', '【203-2-5】近3个周期对比-经期天数-单次变化'],
                 subRecords: ['状态']
               },
-              '流量': {
+              '24-流量': {
                 newer: ['【101-1-2】本周期-周期偏长-异常', '【101-1-3】本周期-周期偏短-异常', '【101-1-1】本周期-周期正常', '【101-2-1】近半年-本次周期缩短-明显变化', '【101-2-3】近半年-本次周期延长-明显变化', '【101-2-4】近半年-周期连续缩短-明显变化', '【101-2-5】近半年-周期连续延长-明显变化', '【101-2-8】近半年-周期偏短偶发-异常', '【101-2-9】近半年-周期偏短频发-明显异常', '【101-2-10】近半年-周期偏长偶发-异常', '【101-2-11】近半年-周期偏长频发-明显异常', '【102-1-2】本周期-不规律-异常', '【102-2-2】近半年-不规律偶发-异常', '【102-2-3】近半年-不规律频发-明显异常'],
                 older: ['【2】本周期-周期偏长-异常', '【3】本周期-周期偏短-异常', '【1】本周期-周期正常'],
+                latest: ['【201-4-1】本周期-流量-正常', '【201-4-2】本周期-流量偏少-中度偏离', '【201-4-3】本周期-流量过多-异常', '【201-4-4】本周期-流量过多-严重异常', '【201-4-5】本周期-经期流量-数据不足', '【202-4-1】近2个周期对比-流量-流量减少', '【202-4-2】近2个周期对比-流量-流量稳定', '【202-4-3】近2个周期对比-流量-流量增加', '【203-4-1】近3个周期对比-流量-逐渐增加', '【203-4-2】近3个周期对比-流量-逐渐减少', '【203-4-3】近3个周期对比-流量-忽多忽少', '【203-4-4】近3个周期对比-流量-流量稳定', '【203-4-5】近3个周期对比-流量-单次变化'],
                 subRecords: ['颜色', '血块']
               },
-              '痛经': {
+              '23-痛经': {
                 newer: ['【101-1-2】本周期-周期偏长-异常', '【101-1-3】本周期-周期偏短-异常', '【101-1-1】本周期-周期正常', '【101-2-1】近半年-本次周期缩短-明显变化', '【101-2-3】近半年-本次周期延长-明显变化', '【101-2-4】近半年-周期连续缩短-明显变化', '【101-2-5】近半年-周期连续延长-明显变化', '【101-2-8】近半年-周期偏短偶发-异常', '【101-2-9】近半年-周期偏短频发-明显异常', '【101-2-10】近半年-周期偏长偶发-异常', '【101-2-11】近半年-周期偏长频发-明显异常', '【102-1-2】本周期-不规律-异常', '【102-2-2】近半年-不规律偶发-异常', '【102-2-3】近半年-不规律频发-明显异常'],
                 older: ['【2】本周期-周期偏长-异常', '【3】本周期-周期偏短-异常', '【1】本周期-周期正常'],
+                latest: ['【201-5-1】本周期-痛经-正常', '【201-5-2】本周期-痛经轻微-轻度偏离', '【201-5-3】本周期-痛经明显-中度偏离', '【201-5-4】本周期-痛经严重-异常', '【201-5-5】本周期-进行性痛经-严重异常', '【201-5-6】本周期-痛经程度-数据不足', '【202-5-1】近2个周期对比-痛经-痛经减轻', '【202-5-2】近2个周期对比-痛经-痛经稳定', '【202-5-3】近2个周期对比-痛经-痛经加重', '【203-5-1】近3个周期对比-痛经-逐渐加重', '【203-5-2】近3个周期对比-痛经-逐渐减轻', '【203-5-3】近3个周期对比-痛经-忽轻忽重', '【203-5-4】近3个周期对比-痛经-程度稳定', '【203-5-5】近3个周期对比-痛经-单次变化'],
                 subRecords: ['程度']
               },
-              '颜色': {
+              '39-颜色': {
                 newer: ['【101-1-2】本周期-周期偏长-异常', '【101-1-3】本周期-周期偏短-异常', '【101-1-1】本周期-周期正常', '【101-2-1】近半年-本次周期缩短-明显变化', '【101-2-3】近半年-本次周期延长-明显变化', '【101-2-4】近半年-周期连续缩短-明显变化', '【101-2-5】近半年-周期连续延长-明显变化', '【101-2-8】近半年-周期偏短偶发-异常', '【101-2-9】近半年-周期偏短频发-明显异常', '【101-2-10】近半年-周期偏长偶发-异常', '【101-2-11】近半年-周期偏长频发-明显异常', '【102-1-2】本周期-不规律-异常', '【102-2-2】近半年-不规律偶发-异常', '【102-2-3】近半年-不规律频发-明显异常'],
                 older: ['【2】本周期-周期偏长-异常', '【3】本周期-周期偏短-异常', '【1】本周期-周期正常'],
+                latest: [],
                 subRecords: ['状态']
               },
-              '爱爱': {
+              '2-爱爱': {
                 newer: ['【101-1-2】本周期-周期偏长-异常', '【101-1-3】本周期-周期偏短-异常', '【101-1-1】本周期-周期正常', '【101-2-1】近半年-本次周期缩短-明显变化', '【101-2-3】近半年-本次周期延长-明显变化', '【101-2-4】近半年-周期连续缩短-明显变化', '【101-2-5】近半年-周期连续延长-明显变化', '【101-2-8】近半年-周期偏短偶发-异常', '【101-2-9】近半年-周期偏短频发-明显异常', '【101-2-10】近半年-周期偏长偶发-异常', '【101-2-11】近半年-周期偏长频发-明显异常', '【102-1-2】本周期-不规律-异常', '【102-2-2】近半年-不规律偶发-异常', '【102-2-3】近半年-不规律频发-明显异常'],
                 older: ['【2】本周期-周期偏长-异常', '【3】本周期-周期偏短-异常', '【1】本周期-周期正常'],
+                latest: [],
                 subRecords: ['频率']
               },
-              '症状': {
+              '7-经期症状': {
                 newer: ['【101-1-2】本周期-周期偏长-异常', '【101-1-3】本周期-周期偏短-异常', '【101-1-1】本周期-周期正常', '【101-2-1】近半年-本次周期缩短-明显变化', '【101-2-3】近半年-本次周期延长-明显变化', '【101-2-4】近半年-周期连续缩短-明显变化', '【101-2-5】近半年-周期连续延长-明显变化', '【101-2-8】近半年-周期偏短偶发-异常', '【101-2-9】近半年-周期偏短频发-明显异常', '【101-2-10】近半年-周期偏长偶发-异常', '【101-2-11】近半年-周期偏长频发-明显异常', '【102-1-2】本周期-不规律-异常', '【102-2-2】近半年-不规律偶发-异常', '【102-2-3】近半年-不规律频发-明显异常'],
                 older: ['【2】本周期-周期偏长-异常', '【3】本周期-周期偏短-异常', '【1】本周期-周期正常'],
+                latest: ['【201-6-1】本周期-经期症状-无症状-正常', '【201-6-2】本周期-经期症状-症状较轻-轻度偏离', '【201-6-3】本周期-经期症状-症状较轻-中度偏离', '【201-6-4】本周期-经期症状-症状明显-异常', '【201-6-5】本周期-经期症状-症状明显-严重异常', '【201-6-6】本周期-经期症状-症状情况-数据不足', '【202-6-1】近2个周期对比-经期症状-症状减轻', '【202-6-2】近2个周期对比-经期症状-症状稳定', '【202-6-3】近2个周期对比-经期症状-症状加重', '【203-6-1】近3个周期对比-经期症状-逐渐加重', '【203-6-2】近3个周期对比-经期症状-逐渐减轻', '【203-6-3】近3个周期对比-经期症状-忽轻忽重', '【203-6-4】近3个周期对比-经期症状-症状稳定', '【203-6-5】近3个周期对比-经期症状-单次变化'],
                 subRecords: ['程度']
               },
-              '白带': {
+              '8-非经期症状': {
                 newer: ['【101-1-2】本周期-周期偏长-异常', '【101-1-3】本周期-周期偏短-异常', '【101-1-1】本周期-周期正常', '【101-2-1】近半年-本次周期缩短-明显变化', '【101-2-3】近半年-本次周期延长-明显变化', '【101-2-4】近半年-周期连续缩短-明显变化', '【101-2-5】近半年-周期连续延长-明显变化', '【101-2-8】近半年-周期偏短偶发-异常', '【101-2-9】近半年-周期偏短频发-明显异常', '【101-2-10】近半年-周期偏长偶发-异常', '【101-2-11】近半年-周期偏长频发-明显异常', '【102-1-2】本周期-不规律-异常', '【102-2-2】近半年-不规律偶发-异常', '【102-2-3】近半年-不规律频发-明显异常'],
                 older: ['【2】本周期-周期偏长-异常', '【3】本周期-周期偏短-异常', '【1】本周期-周期正常'],
+                latest: ['【201-7-1】本周期-非经期症状-无症状-正常', '【201-7-2】本周期-非经期症状-症状较轻-轻度偏离', '【201-7-3】本周期-非经期症状-症状较轻-中度偏离', '【201-7-4】本周期-非经期症状-症状明显-异常', '【201-7-5】本周期-非经期症状-症状明显-严重异常', '【201-7-6】本周期-非经期症状-症状情况-数据不足', '【202-7-1】近2个周期对比-非经期症状-症状减轻', '【202-7-2】近2个周期对比-非经期症状-症状稳定', '【202-7-3】近2个周期对比-非经期症状-症状加重', '【203-7-1】近3个周期对比-非经期症状-逐渐加重', '【203-7-2】近3个周期对比-非经期症状-逐渐减轻', '【203-7-3】近3个周期对比-非经期症状-忽轻忽重', '【203-7-4】近3个周期对比-非经期症状-症状稳定', '【203-7-5】近3个周期对比-非经期症状-单次变化'],
+                subRecords: ['程度']
+              },
+              '13-白带': {
+                newer: ['【101-1-2】本周期-周期偏长-异常', '【101-1-3】本周期-周期偏短-异常', '【101-1-1】本周期-周期正常', '【101-2-1】近半年-本次周期缩短-明显变化', '【101-2-3】近半年-本次周期延长-明显变化', '【101-2-4】近半年-周期连续缩短-明显变化', '【101-2-5】近半年-周期连续延长-明显变化', '【101-2-8】近半年-周期偏短偶发-异常', '【101-2-9】近半年-周期偏短频发-明显异常', '【101-2-10】近半年-周期偏长偶发-异常', '【101-2-11】近半年-周期偏长频发-明显异常', '【102-1-2】本周期-不规律-异常', '【102-2-2】近半年-不规律偶发-异常', '【102-2-3】近半年-不规律频发-明显异常'],
+                older: ['【2】本周期-周期偏长-异常', '【3】本周期-周期偏短-异常', '【1】本周期-周期正常'],
+                latest: [],
                 subRecords: ['颜色', '状态']
               }
-            },
-            latestOptions: ['单周期-周期天数-正常', '单周期-周期偏短-轻度偏离', '单周期-周期偏长-轻度偏离', '单周期-周期过短-异常', '单周期-周期过长-异常', '单周期-周期过短-严重异常', '单周期-周期过长-严重异常', '单周期-周期天数-数据不足', '单周期-周期规律-正常', '单周期-周期规律-轻度偏离', '单周期-周期规律-中度偏离', '单周期-周期不规律-异常', '单周期-周期规律性-数据不足', '单周期-经期天数-正常', '单周期-月经偏短-轻度偏离', '单周期-月经偏长-轻度偏离', '单周期-月经过长-异常', '单周期-经期天数-数据不足', '单周期-流量-正常', '单周期-流量偏少-中度偏离', '单周期-流量过多-异常', '单周期-流量过多-严重异常', '单周期-经期流量-数据不足', '单周期-痛经-正常', '单周期-痛经轻微-轻度偏离', '单周期-痛经明显-中度偏离', '单周期-痛经严重-异常', '单周期-进行性痛经-严重异常', '单周期-痛经程度-数据不足', '单周期-经期症状-无症状-正常', '单周期-经期症状-症状较轻-轻度偏离', '单周期-经期症状-症状较轻-中度偏离', '单周期-经期症状-症状明显-异常', '单周期-经期症状-症状明显-严重异常', '单周期-经期症状-症状情况-数据不足', '单周期-非经期症状-无症状-正常', '单周期-非经期症状-症状较轻-轻度偏离', '单周期-非经期症状-症状较轻-中度偏离', '单周期-非经期症状-症状明显-异常', '单周期-非经期症状-症状明显-严重异常', '单周期-非经期症状-症状情况-数据不足', '近2个周期对比-周期天数-周期缩短', '近2个周期对比-周期天数-周期稳定', '近2个周期对比-周期天数-周期延长', '近2个周期对比-经期天数-经期缩短', '近2个周期对比-经期天数-经期稳定', '近2个周期对比-经期天数-经期延长', '近2个周期对比-流量-流量减少', '近2个周期对比-流量-流量稳定', '近2个周期对比-流量-流量增加', '近2个周期对比-痛经-痛经减轻', '近2个周期对比-痛经-痛经稳定', '近2个周期对比-痛经-痛经加重', '近2个周期对比-经期症状-症状减轻', '近2个周期对比-经期症状-症状稳定', '近2个周期对比-经期症状-症状加重', '近2个周期对比-非经期症状-症状减轻', '近2个周期对比-非经期症状-症状稳定', '近2个周期对比-非经期症状-症状加重', '近3个周期对比-周期天数-逐渐延长', '近3个周期对比-周期天数-逐渐缩短', '近3个周期对比-周期天数-忽长忽短', '近3个周期对比-周期天数-周期稳定', '近3个周期对比-周期天数-单次变化', '近3个周期对比-经期天数-逐渐延长', '近3个周期对比-经期天数-逐渐缩短', '近3个周期对比-经期天数-忽长忽短', '近3个周期对比-经期天数-经期稳定', '近3个周期对比-经期天数-单次变化', '近3个周期对比-流量-逐渐增加', '近3个周期对比-流量-逐渐减少', '近3个周期对比-流量-忽多忽少', '近3个周期对比-流量-流量稳定', '近3个周期对比-流量-单次变化', '近3个周期对比-痛经-逐渐加重', '近3个周期对比-痛经-逐渐减轻', '近3个周期对比-痛经-忽轻忽重', '近3个周期对比-痛经-程度稳定', '近3个周期对比-痛经-单次变化', '近3个周期对比-经期症状-逐渐加重', '近3个周期对比-经期症状-逐渐减轻', '近3个周期对比-经期症状-忽轻忽重', '近3个周期对比-经期症状-症状稳定', '近3个周期对比-经期症状-单次变化', '近3个周期对比-非经期症状-逐渐加重', '近3个周期对比-非经期症状-逐渐减轻', '近3个周期对比-非经期症状-忽轻忽重', '近3个周期对比-非经期症状-症状稳定', '近3个周期对比-非经期症状-单次变化'],
-            materials: [
+            },            materials: [
               { id: 'material_1', name: '记录横幅素材A', title: '记录结果已更新', subtitle: '根据最新记录给你准备了专属福利', scene: '经期 / 体重 / 高版本', image: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="%23ffd7e6"/><stop offset="100%" stop-color="%23fff4f8"/></linearGradient></defs><rect width="640" height="360" rx="24" fill="url(%23g1)"/><circle cx="500" cy="92" r="58" fill="rgba(255,255,255,.55)"/><circle cx="548" cy="160" r="34" fill="rgba(255,255,255,.4)"/><text x="42" y="118" font-size="42" fill="%23a94269" font-family="Arial">记录横幅</text><text x="42" y="170" font-size="24" fill="%23ff5d93" font-family="Arial">根据记录结果展示专属福利</text><rect x="42" y="220" width="180" height="52" rx="26" fill="%23ffffff" opacity="0.88"/><text x="72" y="254" font-size="24" fill="%23ff5d93" font-family="Arial">立即查看</text></svg>' },
               { id: 'material_2', name: '记录横幅素材B', title: '周期提醒已生成', subtitle: '智能分析后为你推荐更适合的内容', scene: '试纸 / 强阳 / 旧版本兼容', image: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360"><defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="%23ffe9d6"/><stop offset="100%" stop-color="%23fff8f2"/></linearGradient></defs><rect width="640" height="360" rx="24" fill="url(%23g2)"/><rect x="386" y="54" width="196" height="252" rx="28" fill="rgba(255,255,255,.72)"/><text x="42" y="116" font-size="40" fill="%23b96d39" font-family="Arial">周期提醒</text><text x="42" y="170" font-size="24" fill="%23ff8f57" font-family="Arial">智能推荐适合你的内容</text><text x="430" y="144" font-size="24" fill="%23b96d39" font-family="Arial">智能分析</text><text x="430" y="188" font-size="18" fill="%23ff8f57" font-family="Arial">专属权益</text></svg>' }
             ],
             jumpTargets: ['会员中心页', '会员权益页', '记录tab活动页', 'H5链接']
           },
-          recordBannerForm: {
-            typeMode: 'period',
-            period: '',
-            recordItem: '',
-            analysisResultNew: '',
-            analysisResultOld: '',
-            analysisResultLatest: [],
-            analysisResultLatestSearch: '',
-            subRecordItem: '',
-            materialId: '',
-            materialOpen: false,
-            periodOpen: false,
-            recordItemOpen: false,
-            analysisResultNewOpen: false,
-            analysisResultOldOpen: false,
-            analysisResultLatestOpen: false,
-            subRecordItemOpen: false,
-            jumpTargetOpen: false,
-            title: '',
-            subtitle: '',
-            bannerImage: '',
-            jumpTarget: '',
-            expireDays: 7,
-          },
+          recordBannerContentGroups: [
+            {
+              id: 1,
+              typeMode: 'period',
+              period: '',
+              recordItem: '',
+              analysisResultNew: '',
+              analysisResultOld: '',
+              analysisResultLatest: [],
+              analysisResultLatestSearch: '',
+              subRecordItem: '',
+              materialOptions: [
+                { id: 1, materialId: '', materialOpen: false, title: '', subtitle: '', bannerImage: '', jumpTarget: '', jumpTargetOpen: false }
+              ],
+              activeMaterialOptionIndex: 0,
+              periodOpen: false,
+              recordItemOpen: false,
+              analysisResultNewOpen: false,
+              analysisResultOldOpen: false,
+              analysisResultLatestOpen: false,
+              subRecordItemOpen: false,
+              expireDays: '',
+            }
+          ],
+          activeContentGroupIndex: 0,
           componentLibrary: [
             {
               key: 'static_banner', icon: '🖼️', name: '静态banner', desc: '静态图片banner组件',
@@ -2299,6 +2381,9 @@
         recordBannerConfig() {
           return this.recordBannerOptions.analysisByRecordItem[this.recordBannerForm.recordItem] || null;
         },
+        recordBannerForm() {
+          return this.recordBannerContentGroups[this.activeContentGroupIndex] || this.recordBannerContentGroups[0];
+        },
         recordBannerAnalysisOptionsNew() {
           return this.recordBannerConfig ? this.recordBannerConfig.newer : [];
         },
@@ -2306,15 +2391,26 @@
           return this.recordBannerConfig ? this.recordBannerConfig.older : [];
         },
         recordBannerAnalysisOptionsLatest() {
-          return this.recordBannerOptions.latestOptions || [];
+          return (this.recordBannerConfig ? this.recordBannerConfig.latest : []);
         },
         filteredRecordBannerAnalysisOptionsLatest() {
           const search = (this.recordBannerForm.analysisResultLatestSearch || '').trim().toLowerCase();
+          const periodMap = { 201: '本周期', 202: '近2个周期对比', 203: '近3个周期对比' };
+          const categoryMap = { 1: '周期天数', 2: '周期规律性', 3: '经期天数', 4: '流量', 5: '痛经', 6: '经期症状', 7: '非经期症状' };
           const groups = new Map();
           this.recordBannerAnalysisOptionsLatest.forEach(item => {
             if (search && !item.toLowerCase().includes(search)) return;
-            const parts = item.split('-');
-            const groupKey = parts.length >= 2 ? `${parts[0]}-${parts[1]}` : item;
+            const idMatch = item.match(/^【(\d+)-(\d+)-\d+】/);
+            let groupKey;
+            if (idMatch) {
+              const period = periodMap[idMatch[1]] || idMatch[1];
+              const category = categoryMap[idMatch[2]] || idMatch[2];
+              groupKey = `${period}-${category}`;
+            } else {
+              const label = item.replace(/^【[^】]*】/, '');
+              const parts = label.split('-');
+              groupKey = parts.length >= 2 ? `${parts[0]}-${parts[1]}` : label;
+            }
             if (!groups.has(groupKey)) groups.set(groupKey, []);
             groups.get(groupKey).push(item);
           });
@@ -2323,14 +2419,20 @@
         recordBannerSubRecordOptions() {
           return this.recordBannerConfig ? this.recordBannerConfig.subRecords : [];
         },
+        activeMaterialOption() {
+          const group = this.recordBannerForm;
+          if (!group || !group.materialOptions) return null;
+          return group.materialOptions[group.activeMaterialOptionIndex] || null;
+        },
         selectedRecordBannerMaterial() {
-          return this.recordBannerOptions.materials.find(item => item.id === this.recordBannerForm.materialId) || null;
+          if (!this.activeMaterialOption) return null;
+          return this.recordBannerOptions.materials.find(item => item.id === this.activeMaterialOption.materialId) || null;
         },
         selectedRecordBannerMaterialLabel() {
           return this.selectedRecordBannerMaterial ? this.selectedRecordBannerMaterial.name : '请选择';
         },
         recordBannerPreviewImage() {
-          return this.recordBannerForm.bannerImage || (this.selectedRecordBannerMaterial && this.selectedRecordBannerMaterial.image) || '';
+          return (this.activeMaterialOption && this.activeMaterialOption.bannerImage) || (this.selectedRecordBannerMaterial && this.selectedRecordBannerMaterial.image) || '';
         },
         recordBannerPreviewTag() {
           const tags = [];
@@ -2418,36 +2520,118 @@
           }
         },
         ensureRecordBannerDefaults() {
-          if (!this.recordBannerForm.materialId && this.recordBannerOptions.materials.length > 0) {
-            this.recordBannerForm.materialId = this.recordBannerOptions.materials[0].id;
-          }
-          if (!this.recordBannerForm.recordItem && this.recordBannerOptions.recordItems.length > 0) {
-            this.recordBannerForm.recordItem = this.recordBannerOptions.recordItems[0];
-          }
-          if (!this.recordBannerForm.period && this.recordBannerOptions.periods.length > 0) {
-            this.recordBannerForm.period = this.recordBannerOptions.periods[0];
-          }
-          this.syncRecordBannerDependentOptions();
         },
         syncRecordBannerDependentOptions() {
           if (!this.recordBannerAnalysisOptionsNew.includes(this.recordBannerForm.analysisResultNew)) {
-            this.recordBannerForm.analysisResultNew = this.recordBannerAnalysisOptionsNew[0] || '';
+            this.recordBannerForm.analysisResultNew = '';
           }
           if (!this.recordBannerAnalysisOptionsOld.includes(this.recordBannerForm.analysisResultOld)) {
-            this.recordBannerForm.analysisResultOld = this.recordBannerAnalysisOptionsOld[0] || '';
+            this.recordBannerForm.analysisResultOld = '';
           }
           this.recordBannerForm.analysisResultLatest = this.recordBannerForm.analysisResultLatest.filter(
             item => this.recordBannerAnalysisOptionsLatest.includes(item)
           );
           if (!this.recordBannerSubRecordOptions.includes(this.recordBannerForm.subRecordItem)) {
-            this.recordBannerForm.subRecordItem = this.recordBannerSubRecordOptions[0] || '';
+            this.recordBannerForm.subRecordItem = '';
           }
-          if (!this.recordBannerForm.bannerImage) {
-            this.recordBannerForm.bannerImage = this.recordBannerPreviewImage;
+          if (!this.activeMaterialOption.bannerImage) {
+            this.activeMaterialOption.bannerImage = this.recordBannerPreviewImage;
           }
         },
         handleRecordItemChange() {
           this.syncRecordBannerDependentOptions();
+        },
+        /* ---- Content Group management ---- */
+        addContentGroup() {
+          const newGroup = {
+            id: Math.max(0, ...this.recordBannerContentGroups.map(g => g.id)) + 1,
+            typeMode: 'period', period: '', recordItem: '', analysisResultNew: '', analysisResultOld: '',
+            analysisResultLatest: [], analysisResultLatestSearch: '', subRecordItem: '',
+            materialOptions: [
+              { id: 1, materialId: '', materialOpen: false, title: '', subtitle: '', bannerImage: '', jumpTarget: '', jumpTargetOpen: false }
+            ],
+            activeMaterialOptionIndex: 0,
+            periodOpen: false, recordItemOpen: false,
+            analysisResultNewOpen: false, analysisResultOldOpen: false, analysisResultLatestOpen: false,
+            subRecordItemOpen: false,
+            expireDays: '',
+          };
+          this.recordBannerContentGroups.push(newGroup);
+          this.activeContentGroupIndex = this.recordBannerContentGroups.length - 1;
+        },
+        getConfiguredMaterialCount(group) {
+          const count = group.materialOptions ? group.materialOptions.filter(o => o.materialId).length : 0;
+          return count === 0 ? '0个选项' : `${count}个选项`;
+        },
+        copyContentGroup(gi) {
+          const src = this.recordBannerContentGroups[gi];
+          const newGroup = JSON.parse(JSON.stringify(src));
+          newGroup.id = Math.max(0, ...this.recordBannerContentGroups.map(g => g.id)) + 1;
+          // Close all dropdowns on the copy
+          ['periodOpen','recordItemOpen','analysisResultNewOpen','analysisResultOldOpen','analysisResultLatestOpen','subRecordItemOpen'].forEach(k => { newGroup[k] = false; });
+          if (newGroup.materialOptions) newGroup.materialOptions.forEach(o => { o.materialOpen = false; o.jumpTargetOpen = false; });
+          this.recordBannerContentGroups.splice(gi + 1, 0, newGroup);
+          this.activeContentGroupIndex = gi + 1;
+        },
+        deleteContentGroup(gi) {
+          if (this.recordBannerContentGroups.length <= 1) return;
+          this.recordBannerContentGroups.splice(gi, 1);
+          if (this.activeContentGroupIndex >= this.recordBannerContentGroups.length) {
+            this.activeContentGroupIndex = this.recordBannerContentGroups.length - 1;
+          }
+        },
+        selectContentGroup(gi) {
+          this.activeContentGroupIndex = gi;
+        },
+        getGroupMaterialName(materialId) {
+          if (!materialId) return '未设置';
+          const m = this.recordBannerOptions.materials.find(item => item.id === materialId);
+          return m ? m.name : '未知素材';
+        },
+        getMatOptMaterialName(materialId) {
+          return this.getGroupMaterialName(materialId);
+        },
+        /* ---- Material Option management ---- */
+        addMaterialOption() {
+          const group = this.recordBannerForm;
+          const newOpt = {
+            id: Math.max(0, ...group.materialOptions.map(o => o.id)) + 1,
+            materialId: '', materialOpen: false, title: '', subtitle: '', bannerImage: '', jumpTarget: '', jumpTargetOpen: false
+          };
+          group.materialOptions.push(newOpt);
+          group.activeMaterialOptionIndex = group.materialOptions.length - 1;
+        },
+        copyAllMaterialOptions() {
+          const group = this.recordBannerForm;
+          const copies = group.materialOptions.map(opt => {
+            const copy = JSON.parse(JSON.stringify(opt));
+            copy.materialOpen = false;
+            copy.jumpTargetOpen = false;
+            return copy;
+          });
+          const maxId = Math.max(0, ...group.materialOptions.map(o => o.id));
+          copies.forEach((c, i) => { c.id = maxId + 1 + i; });
+          group.materialOptions.push(...copies);
+          group.activeMaterialOptionIndex = group.materialOptions.length - copies.length;
+          this.showToast(`已复制 ${copies.length} 个素材选项`);
+        },
+        copyMaterialOption(oi) {
+          const group = this.recordBannerForm;
+          const src = group.materialOptions[oi];
+          const newOpt = JSON.parse(JSON.stringify(src));
+          newOpt.id = Math.max(0, ...group.materialOptions.map(o => o.id)) + 1;
+          newOpt.materialOpen = false;
+          newOpt.jumpTargetOpen = false;
+          group.materialOptions.splice(oi + 1, 0, newOpt);
+          group.activeMaterialOptionIndex = oi + 1;
+        },
+        deleteMaterialOption(oi) {
+          const group = this.recordBannerForm;
+          if (group.materialOptions.length <= 1) return;
+          group.materialOptions.splice(oi, 1);
+          if (group.activeMaterialOptionIndex >= group.materialOptions.length) {
+            group.activeMaterialOptionIndex = group.materialOptions.length - 1;
+          }
         },
         toggleLatestOption(item) {
           const idx = this.recordBannerForm.analysisResultLatest.indexOf(item);
@@ -2463,7 +2647,7 @@
         toggleRecordBannerSelect(field, disabled = false) {
           if (disabled) return;
           const openKey = `${field}Open`;
-          ['periodOpen', 'recordItemOpen', 'analysisResultNewOpen', 'analysisResultOldOpen', 'analysisResultLatestOpen', 'subRecordItemOpen', 'materialOpen', 'jumpTargetOpen'].forEach(key => {
+          ['periodOpen', 'recordItemOpen', 'analysisResultNewOpen', 'analysisResultOldOpen', 'analysisResultLatestOpen', 'subRecordItemOpen'].forEach(key => {
             this.recordBannerForm[key] = key === openKey ? !this.recordBannerForm[key] : false;
           });
         },
@@ -2479,24 +2663,31 @@
           if (typeof callback === 'function') callback();
         },
         selectRecordBannerMaterial(materialId) {
-          this.recordBannerForm.materialId = materialId;
-          this.recordBannerForm.materialOpen = false;
-          if (!this.recordBannerForm.bannerImage && this.selectedRecordBannerMaterial) {
-            this.recordBannerForm.bannerImage = this.selectedRecordBannerMaterial.image;
+          if (!this.activeMaterialOption) return;
+          this.activeMaterialOption.materialId = materialId;
+          this.activeMaterialOption.materialOpen = false;
+          if (materialId) {
+            const mat = this.recordBannerOptions.materials.find(item => item.id === materialId);
+            if (mat) {
+              this.activeMaterialOption.title = mat.title || '';
+              this.activeMaterialOption.subtitle = mat.subtitle || '';
+              this.activeMaterialOption.bannerImage = mat.image || '';
+            }
           }
         },
         refreshRecordBannerMaterials() {
           this.showToast('素材列表已刷新');
         },
         mockUploadRecordBannerImage() {
-          this.recordBannerForm.bannerImage = (this.selectedRecordBannerMaterial && this.selectedRecordBannerMaterial.image) || this.recordBannerOptions.materials[0]?.image || '';
+          if (!this.activeMaterialOption) return;
+          this.activeMaterialOption.bannerImage = (this.selectedRecordBannerMaterial && this.selectedRecordBannerMaterial.image) || this.recordBannerOptions.materials[0]?.image || '';
           this.showToast('已更新横幅图片');
         },
         useSelectedMaterialImage() {
-          if (!this.selectedRecordBannerMaterial) return;
-          this.recordBannerForm.bannerImage = this.selectedRecordBannerMaterial.image;
-          if (!this.recordBannerForm.title) this.recordBannerForm.title = this.selectedRecordBannerMaterial.title;
-          if (!this.recordBannerForm.subtitle) this.recordBannerForm.subtitle = this.selectedRecordBannerMaterial.subtitle;
+          if (!this.selectedRecordBannerMaterial || !this.activeMaterialOption) return;
+          this.activeMaterialOption.bannerImage = this.selectedRecordBannerMaterial.image;
+          if (!this.activeMaterialOption.title) this.activeMaterialOption.title = this.selectedRecordBannerMaterial.title;
+          if (!this.activeMaterialOption.subtitle) this.activeMaterialOption.subtitle = this.selectedRecordBannerMaterial.subtitle;
           this.showToast('已应用素材默认内容');
         },
         changeRecordBannerExpireDays(delta) {
@@ -2634,6 +2825,7 @@
           };
 
           if (this.isRecordBannerPath) {
+            const activeOpt = this.activeMaterialOption;
             payload.recordBannerContent = {
               typeMode: this.recordBannerForm.typeMode,
               period: this.recordBannerForm.period,
@@ -2641,12 +2833,14 @@
               analysisResultNew: this.recordBannerForm.analysisResultNew,
               analysisResultOld: this.recordBannerForm.analysisResultOld,
               subRecordItem: this.recordBannerForm.subRecordItem,
-              materialId: this.recordBannerForm.materialId,
-              materialName: this.selectedRecordBannerMaterial ? this.selectedRecordBannerMaterial.name : '',
-              title: this.recordBannerForm.title,
-              subtitle: this.recordBannerForm.subtitle,
-              bannerImage: this.recordBannerPreviewImage,
-              jumpTarget: this.recordBannerForm.jumpTarget,
+              materialOptions: (this.recordBannerForm.materialOptions || []).map(o => ({
+                materialId: o.materialId,
+                materialName: (this.recordBannerOptions.materials.find(m => m.id === o.materialId) || {}).name || '',
+                title: o.title,
+                subtitle: o.subtitle,
+                bannerImage: o.bannerImage,
+                jumpTarget: o.jumpTarget,
+              })),
               expireDays: this.recordBannerForm.expireDays,
             };
           }
