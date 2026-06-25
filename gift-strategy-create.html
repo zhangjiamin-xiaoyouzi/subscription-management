@@ -1197,8 +1197,9 @@
 
         function navigateTo(url) {
           if (location.hostname.includes('github.io')) {
-            const parts = url.replace(/^\//, '').replace(/\/$/, '').split('/');
-            window.location.href = parts.join('-') + '.html' + (url.includes('?') ? url.slice(url.indexOf('?')) : '');
+            const [path, query] = url.split('?');
+            const parts = path.replace(/^\//, '').replace(/\/$/, '').split('/');
+            window.location.href = parts.join('-') + '.html' + (query ? '?' + query : '');
           } else {
             window.location.href = url;
           }
