@@ -163,6 +163,43 @@
       border: none; outline: none; flex: 1; min-width: 60px; height: 22px;
       font-size: 13px; background: transparent; color: rgba(0,0,0,.85);
     }
+    .multi-select-tags.disabled {
+      background: #f5f5f5; color: rgba(0,0,0,.45); cursor: not-allowed;
+    }
+    .multi-select-tags .placeholder-text {
+      color: #bfbfbf; font-size: 13px; line-height: 28px;
+    }
+
+    /* Multi-Select Search in Dropdown */
+    .select-search-box {
+      display: flex; align-items: center; padding: 6px 8px;
+      border-bottom: 1px solid #f0f0f0; position: sticky; top: 0;
+      background: #fff; z-index: 1;
+    }
+    .select-search-input {
+      flex: 1; height: 28px; padding: 0 8px; font-size: 13px;
+      border: 1px solid #d9d9d9; border-radius: 2px; outline: none;
+      color: rgba(0,0,0,.85); transition: border-color .2s;
+    }
+    .select-search-input:focus { border-color: #40a9ff; }
+    .select-search-input::placeholder { color: #bfbfbf; }
+    .search-clear {
+      margin-left: 4px; cursor: pointer; font-size: 14px; color: #999;
+      padding: 0 4px; line-height: 1;
+    }
+    .search-clear:hover { color: #ff4d4f; }
+    .select-option-empty {
+      padding: 16px 12px; font-size: 13px; color: #bfbfbf;
+      text-align: center; user-select: none;
+    }
+    .select-option-group {
+      padding: 6px 12px; font-size: 12px; color: rgba(0,0,0,.45);
+      background: #fafafa; font-weight: 500; position: sticky; top: 40px;
+      z-index: 0; border-top: 1px solid #f0f0f0; user-select: none;
+    }
+    .select-option-group:first-child {
+      border-top: none;
+    }
 
     /* Radio Group */
     .radio-group { display: flex; align-items: center; gap: 24px; }
@@ -1223,6 +1260,34 @@
                     </div>
                   </div>
 
+                  <div class="record-banner-field full">
+                    <div class="record-banner-label">分析结果(9.09.0及以上版本配置):</div>
+                    <div class="record-banner-control" :class="{ disabled: !recordBannerForm.recordItem }">
+                      <div class="record-banner-select record-banner-multi-select" :class="{ 'is-disabled': !recordBannerForm.recordItem }" v-click-outside="() => closeRecordBannerSelect('analysisResultLatest')">
+                        <div class="multi-select-tags" :class="{ open: recordBannerForm.analysisResultLatestOpen, disabled: !recordBannerForm.recordItem }" @click="toggleRecordBannerSelect('analysisResultLatest', !recordBannerForm.recordItem)">
+                          <span class="tag-item" v-for="(item, idx) in recordBannerForm.analysisResultLatest" :key="item">
+                            {{ item }}
+                            <span class="tag-close" @click.stop="removeLatestTag(idx)">×</span>
+                          </span>
+                          <span v-if="recordBannerForm.analysisResultLatest.length === 0" class="placeholder-text">请选择</span>
+                        </div>
+                        <span class="select-arrow">▾</span>
+                        <div class="select-dropdown select-dropdown-grouped" v-show="recordBannerForm.analysisResultLatestOpen && recordBannerForm.recordItem">
+                          <div class="select-search-box" @click.stop>
+                            <input class="select-search-input" v-model="recordBannerForm.analysisResultLatestSearch" placeholder="搜索分析结果..." />
+                            <span v-if="recordBannerForm.analysisResultLatestSearch" class="search-clear" @click.stop="recordBannerForm.analysisResultLatestSearch = ''">×</span>
+                          </div>
+                          <template v-for="g in filteredRecordBannerAnalysisOptionsLatest" :key="g.group">
+                            <div class="select-option-group">{{ g.group }}</div>
+                            <div class="select-option" v-for="item in g.items" :key="item" :class="{ selected: recordBannerForm.analysisResultLatest.includes(item) }" @click.stop="toggleLatestOption(item)">{{ item }}</div>
+                          </template>
+                          <div v-if="filteredRecordBannerAnalysisOptionsLatest.length === 0" class="select-option-empty">暂无匹配结果</div>
+                        </div>
+                      </div>
+                      <div class="record-banner-tip">9.09.0及以上版本专用分析结果选择，支持多选</div>
+                    </div>
+                  </div>
+
                   <div class="record-banner-field">
                     <div class="record-banner-label">分析结果(8.97.0及以上版本配置):</div>
                     <div class="record-banner-control" :class="{ disabled: !recordBannerForm.recordItem }">
@@ -2050,6 +2115,7 @@
                 subRecords: ['颜色', '状态']
               }
             },
+            latestOptions: ['单周期-周期天数-正常', '单周期-周期偏短-轻度偏离', '单周期-周期偏长-轻度偏离', '单周期-周期过短-异常', '单周期-周期过长-异常', '单周期-周期过短-严重异常', '单周期-周期过长-严重异常', '单周期-周期天数-数据不足', '单周期-周期规律-正常', '单周期-周期规律-轻度偏离', '单周期-周期规律-中度偏离', '单周期-周期不规律-异常', '单周期-周期规律性-数据不足', '单周期-经期天数-正常', '单周期-月经偏短-轻度偏离', '单周期-月经偏长-轻度偏离', '单周期-月经过长-异常', '单周期-经期天数-数据不足', '单周期-流量-正常', '单周期-流量偏少-中度偏离', '单周期-流量过多-异常', '单周期-流量过多-严重异常', '单周期-经期流量-数据不足', '单周期-痛经-正常', '单周期-痛经轻微-轻度偏离', '单周期-痛经明显-中度偏离', '单周期-痛经严重-异常', '单周期-进行性痛经-严重异常', '单周期-痛经程度-数据不足', '单周期-经期症状-无症状-正常', '单周期-经期症状-症状较轻-轻度偏离', '单周期-经期症状-症状较轻-中度偏离', '单周期-经期症状-症状明显-异常', '单周期-经期症状-症状明显-严重异常', '单周期-经期症状-症状情况-数据不足', '单周期-非经期症状-无症状-正常', '单周期-非经期症状-症状较轻-轻度偏离', '单周期-非经期症状-症状较轻-中度偏离', '单周期-非经期症状-症状明显-异常', '单周期-非经期症状-症状明显-严重异常', '单周期-非经期症状-症状情况-数据不足', '近2个周期对比-周期天数-周期缩短', '近2个周期对比-周期天数-周期稳定', '近2个周期对比-周期天数-周期延长', '近2个周期对比-经期天数-经期缩短', '近2个周期对比-经期天数-经期稳定', '近2个周期对比-经期天数-经期延长', '近2个周期对比-流量-流量减少', '近2个周期对比-流量-流量稳定', '近2个周期对比-流量-流量增加', '近2个周期对比-痛经-痛经减轻', '近2个周期对比-痛经-痛经稳定', '近2个周期对比-痛经-痛经加重', '近2个周期对比-经期症状-症状减轻', '近2个周期对比-经期症状-症状稳定', '近2个周期对比-经期症状-症状加重', '近2个周期对比-非经期症状-症状减轻', '近2个周期对比-非经期症状-症状稳定', '近2个周期对比-非经期症状-症状加重', '近3个周期对比-周期天数-逐渐延长', '近3个周期对比-周期天数-逐渐缩短', '近3个周期对比-周期天数-忽长忽短', '近3个周期对比-周期天数-周期稳定', '近3个周期对比-周期天数-单次变化', '近3个周期对比-经期天数-逐渐延长', '近3个周期对比-经期天数-逐渐缩短', '近3个周期对比-经期天数-忽长忽短', '近3个周期对比-经期天数-经期稳定', '近3个周期对比-经期天数-单次变化', '近3个周期对比-流量-逐渐增加', '近3个周期对比-流量-逐渐减少', '近3个周期对比-流量-忽多忽少', '近3个周期对比-流量-流量稳定', '近3个周期对比-流量-单次变化', '近3个周期对比-痛经-逐渐加重', '近3个周期对比-痛经-逐渐减轻', '近3个周期对比-痛经-忽轻忽重', '近3个周期对比-痛经-程度稳定', '近3个周期对比-痛经-单次变化', '近3个周期对比-经期症状-逐渐加重', '近3个周期对比-经期症状-逐渐减轻', '近3个周期对比-经期症状-忽轻忽重', '近3个周期对比-经期症状-症状稳定', '近3个周期对比-经期症状-单次变化', '近3个周期对比-非经期症状-逐渐加重', '近3个周期对比-非经期症状-逐渐减轻', '近3个周期对比-非经期症状-忽轻忽重', '近3个周期对比-非经期症状-症状稳定', '近3个周期对比-非经期症状-单次变化'],
             materials: [
               { id: 'material_1', name: '记录横幅素材A', title: '记录结果已更新', subtitle: '根据最新记录给你准备了专属福利', scene: '经期 / 体重 / 高版本', image: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="%23ffd7e6"/><stop offset="100%" stop-color="%23fff4f8"/></linearGradient></defs><rect width="640" height="360" rx="24" fill="url(%23g1)"/><circle cx="500" cy="92" r="58" fill="rgba(255,255,255,.55)"/><circle cx="548" cy="160" r="34" fill="rgba(255,255,255,.4)"/><text x="42" y="118" font-size="42" fill="%23a94269" font-family="Arial">记录横幅</text><text x="42" y="170" font-size="24" fill="%23ff5d93" font-family="Arial">根据记录结果展示专属福利</text><rect x="42" y="220" width="180" height="52" rx="26" fill="%23ffffff" opacity="0.88"/><text x="72" y="254" font-size="24" fill="%23ff5d93" font-family="Arial">立即查看</text></svg>' },
               { id: 'material_2', name: '记录横幅素材B', title: '周期提醒已生成', subtitle: '智能分析后为你推荐更适合的内容', scene: '试纸 / 强阳 / 旧版本兼容', image: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360"><defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="%23ffe9d6"/><stop offset="100%" stop-color="%23fff8f2"/></linearGradient></defs><rect width="640" height="360" rx="24" fill="url(%23g2)"/><rect x="386" y="54" width="196" height="252" rx="28" fill="rgba(255,255,255,.72)"/><text x="42" y="116" font-size="40" fill="%23b96d39" font-family="Arial">周期提醒</text><text x="42" y="170" font-size="24" fill="%23ff8f57" font-family="Arial">智能推荐适合你的内容</text><text x="430" y="144" font-size="24" fill="%23b96d39" font-family="Arial">智能分析</text><text x="430" y="188" font-size="18" fill="%23ff8f57" font-family="Arial">专属权益</text></svg>' }
@@ -2062,6 +2128,8 @@
             recordItem: '',
             analysisResultNew: '',
             analysisResultOld: '',
+            analysisResultLatest: [],
+            analysisResultLatestSearch: '',
             subRecordItem: '',
             materialId: '',
             materialOpen: false,
@@ -2069,6 +2137,7 @@
             recordItemOpen: false,
             analysisResultNewOpen: false,
             analysisResultOldOpen: false,
+            analysisResultLatestOpen: false,
             subRecordItemOpen: false,
             jumpTargetOpen: false,
             title: '',
@@ -2236,6 +2305,21 @@
         recordBannerAnalysisOptionsOld() {
           return this.recordBannerConfig ? this.recordBannerConfig.older : [];
         },
+        recordBannerAnalysisOptionsLatest() {
+          return this.recordBannerOptions.latestOptions || [];
+        },
+        filteredRecordBannerAnalysisOptionsLatest() {
+          const search = (this.recordBannerForm.analysisResultLatestSearch || '').trim().toLowerCase();
+          const groups = new Map();
+          this.recordBannerAnalysisOptionsLatest.forEach(item => {
+            if (search && !item.toLowerCase().includes(search)) return;
+            const parts = item.split('-');
+            const groupKey = parts.length >= 2 ? `${parts[0]}-${parts[1]}` : item;
+            if (!groups.has(groupKey)) groups.set(groupKey, []);
+            groups.get(groupKey).push(item);
+          });
+          return Array.from(groups.entries()).map(([group, items]) => ({ group, items }));
+        },
         recordBannerSubRecordOptions() {
           return this.recordBannerConfig ? this.recordBannerConfig.subRecords : [];
         },
@@ -2352,6 +2436,9 @@
           if (!this.recordBannerAnalysisOptionsOld.includes(this.recordBannerForm.analysisResultOld)) {
             this.recordBannerForm.analysisResultOld = this.recordBannerAnalysisOptionsOld[0] || '';
           }
+          this.recordBannerForm.analysisResultLatest = this.recordBannerForm.analysisResultLatest.filter(
+            item => this.recordBannerAnalysisOptionsLatest.includes(item)
+          );
           if (!this.recordBannerSubRecordOptions.includes(this.recordBannerForm.subRecordItem)) {
             this.recordBannerForm.subRecordItem = this.recordBannerSubRecordOptions[0] || '';
           }
@@ -2362,10 +2449,21 @@
         handleRecordItemChange() {
           this.syncRecordBannerDependentOptions();
         },
+        toggleLatestOption(item) {
+          const idx = this.recordBannerForm.analysisResultLatest.indexOf(item);
+          if (idx >= 0) {
+            this.recordBannerForm.analysisResultLatest.splice(idx, 1);
+          } else {
+            this.recordBannerForm.analysisResultLatest.push(item);
+          }
+        },
+        removeLatestTag(idx) {
+          this.recordBannerForm.analysisResultLatest.splice(idx, 1);
+        },
         toggleRecordBannerSelect(field, disabled = false) {
           if (disabled) return;
           const openKey = `${field}Open`;
-          ['periodOpen', 'recordItemOpen', 'analysisResultNewOpen', 'analysisResultOldOpen', 'subRecordItemOpen', 'materialOpen', 'jumpTargetOpen'].forEach(key => {
+          ['periodOpen', 'recordItemOpen', 'analysisResultNewOpen', 'analysisResultOldOpen', 'analysisResultLatestOpen', 'subRecordItemOpen', 'materialOpen', 'jumpTargetOpen'].forEach(key => {
             this.recordBannerForm[key] = key === openKey ? !this.recordBannerForm[key] : false;
           });
         },
