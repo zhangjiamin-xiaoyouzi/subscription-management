@@ -1422,7 +1422,14 @@
 
         onMounted(() => { fetchList(); });
 
-        function navigateTo(url) { window.location.href = url; }
+        function navigateTo(url) {
+          if (location.hostname.includes('github.io')) {
+            const parts = url.replace(/^\//, '').replace(/\/$/, '').split('/');
+            window.location.href = parts.join('-') + '.html' + (url.includes('?') ? url.slice(url.indexOf('?')) : '');
+          } else {
+            window.location.href = url;
+          }
+        }
 
         return {
           loading, totalCount, currentPage, pageSize, maxPage,

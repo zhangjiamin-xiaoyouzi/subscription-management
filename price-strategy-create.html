@@ -441,7 +441,14 @@
           window.location.href = '/price-strategy/list';
         }
 
-        function navigateTo(url) { window.location.href = url; }
+        function navigateTo(url) {
+          if (location.hostname.includes('github.io')) {
+            const parts = url.replace(/^\//, '').replace(/\/$/, '').split('/');
+            window.location.href = parts.join('-') + '.html' + (url.includes('?') ? url.slice(url.indexOf('?')) : '');
+          } else {
+            window.location.href = url;
+          }
+        }
 
         return {
           siderCollapsed, opToolsOpen, priceManageOpen, lotteryManageOpen, deployOpen, subMenuMaxHeight, activeParents,

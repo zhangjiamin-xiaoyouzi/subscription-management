@@ -2701,7 +2701,14 @@
           this.toastTimer = setTimeout(() => { this.toast = ''; }, 2000);
         },
 
-        navigateTo(url) { window.location.href = url; },
+        navigateTo(url) {
+          if (location.hostname.includes('github.io')) {
+            const parts = url.replace(/^\//, '').replace(/\/$/, '').split('/');
+            window.location.href = parts.join('-') + '.html' + (url.includes('?') ? url.slice(url.indexOf('?')) : '');
+          } else {
+            window.location.href = url;
+          }
+        },
 
         // ---- Condition helpers ----
         getFieldLabel(fv) { const fd = getFieldDef(fv); return fd ? fd.label : fv; },
