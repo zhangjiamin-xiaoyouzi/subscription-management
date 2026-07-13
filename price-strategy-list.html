@@ -219,6 +219,11 @@
       font-size: 14px; font-weight: 600; color: #333; margin-bottom: 16px;
       padding-bottom: 8px; border-bottom: 1px solid #f0f0f0;
     }
+    /* 修改弹窗置灰样式 */
+    .create-modal select:disabled,
+    .create-modal input:disabled {
+      background: #f5f5f5; color: #bfbfbf; cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
@@ -385,6 +390,7 @@
                   </td>
                   <td style="white-space:nowrap;">
                     <button class="btn-link" @click="goView(row)">查看</button>
+                    <button class="btn-link" @click="goEdit(row)">修改</button>
                     <button class="btn-link" @click="goCopy(row)">复制</button>
                     <button v-if="row.status === '启用'" class="btn-danger" @click="confirmDisable(row)">失效</button>
                     <button v-else class="btn-link" @click="confirmEnable(row)">启用</button>
@@ -526,6 +532,44 @@
         </div>
       </div>
     </div>
+
+    <!-- 修改价格策略弹窗（功能同新增，仅策略名称可编辑） -->
+    <div class="modal-mask create-modal" v-if="editModal.visible" @click.self="editModal.visible = false">
+      <div class="modal-box">
+        <div class="modal-hd">
+          <span>修改价格策略</span>
+          <button class="modal-close" @click="editModal.visible = false">✕</button>
+        </div>
+        <div class="modal-bd">
+          <!-- 价格策略名称（可编辑） -->
+          <div class="form-row">
+            <label class="form-label required">价格策略名称</label>
+            <div class="form-control">
+              <input class="input-field" v-model="editForm.name" placeholder="请输入，≤15" maxlength="15" />
+            </div>
+          </div>
+
+          <!-- 各订阅周期关联策略（只读） -->
+          <template v-for="period in createPeriods" :key="period.key">
+            <div class="form-row">
+              <label class="form-label">{{ period.label }}</label>
+              <div class="form-control">
+                <select class="select-field" v-model="editForm.mapping[period.key]" style="width:100%;" disabled>
+                  <option value="">请选择</option>
+                  <option v-for="opt in periodOptions[period.key]" :key="opt.value" :value="opt.value">
+                    {{ opt.label }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </template>
+        </div>
+        <div class="modal-ft">
+          <button class="btn-outline" @click="editModal.visible = false">取 消</button>
+          <button class="btn-primary" @click="handleEditSave" :disabled="!editForm.name.trim()">保 存</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="https://unpkg.com/vue@3.3.13/dist/vue.global.js"></script>
@@ -551,9 +595,26 @@
         const disableModal = reactive({ visible: false, message: '', record: null, action: '' });
         const viewModal = reactive({ visible: false, data: {} });
         const createModal = reactive({ visible: false });
+        const editModal = reactive({ visible: false, record: null });
 
         // 创建表单
         const createForm = reactive({
+          name: '',
+          mapping: {
+            continuousMonth: '',
+            continuousQuarter: '',
+            continuousYear: '',
+            monthCard: '',
+            quarterCard: '',
+            yearCard: '',
+            weekCard: '',
+            doubleMonthCard: '',
+            halfYearCard: '',
+          },
+        });
+
+        // 编辑表单（仅名称可编辑，其余只读展示）
+        const editForm = reactive({
           name: '',
           mapping: {
             continuousMonth: '',
@@ -936,6 +997,44 @@
           navigateTo('/price-strategy/create?' + params.toString());
         }
 
+        function goEdit(row) {
+          editModal.record = row;
+          // 填充编辑表单
+          editForm.name = row.name;
+          // 根据 plans 反向映射到 mapping
+          const periodKeyMap = {
+            '连续包月': 'continuousMonth', '连续包季': 'continuousQuarter', '连续包年': 'continuousYear',
+            '月卡': 'monthCard', '季卡': 'quarterCard', '年卡': 'yearCard',
+            '周卡': 'weekCard', '双月卡': 'doubleMonthCard', '半年卡': 'halfYearCard',
+          };
+          // 先清空
+          for (const k of Object.keys(editForm.mapping)) {
+            editForm.mapping[k] = '';
+          }
+          if (row.plans && Array.isArray(row.plans)) {
+            for (const plan of row.plans) {
+              const key = periodKeyMap[plan.period];
+              if (key && plan.packageId) {
+                editForm.mapping[key] = plan.packageId;
+              }
+            }
+          }
+          editModal.visible = true;
+        }
+
+        function handleEditSave() {
+          const nextName = (editForm.name || '').trim();
+          if (!nextName) {
+            alert('请输入策略名称');
+            return;
+          }
+          if (!editModal.record) return;
+          editModal.record.name = nextName;
+          editModal.record.updater = '周九';
+          editModal.record.updateTime = dayjs().format('YYYY-MM-DD HH:mm:ss');
+          editModal.visible = false;
+        }
+
         function confirmDisable(row) {
           disableModal.record = row;
           disableModal.action = 'disable';
@@ -976,12 +1075,13 @@
         return {
           siderCollapsed, opToolsOpen, deployOpen, priceManageOpen, lotteryManageOpen, subMenuMaxHeight, activeParents,
           currentPage, pageSize, searchText, onlyEnabled,
-          disableModal, viewModal, createModal,
+          disableModal, viewModal, createModal, editModal,
           createForm, createPeriods, periodOptions, canCreate,
+          editForm,
           allData, filteredData, totalFiltered, totalPages, pageNumbers, pageData,
-          handleSearch, goPage, handlePageSizeChange, goCreate, goView, goCopy, navigateTo,
+          handleSearch, goPage, handlePageSizeChange, goCreate, goView, goEdit, goCopy, navigateTo,
           confirmDisable, confirmEnable, handleDisableOk,
-          handleCreateSave,
+          handleCreateSave, handleEditSave,
         };
       }
     }).mount('#app');
