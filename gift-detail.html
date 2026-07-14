@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>查看赠礼 - 赠礼库</title>
+  <link rel="stylesheet" href="https://unpkg.com/ant-design-vue@3.2.20/dist/antd.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif; background: #f5f5f5; color: #333; font-size: 14px; }
+    #app { min-height: 100vh; display: flex; flex-direction: column; }
+    [v-cloak] { display: none !important; }
+    .app-header { height: 48px; background: #fff; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-shadow: 0 1px 2px rgba(0,0,0,.03); position: sticky; top: 0; z-index: 100; }
+    .app-header .header-left { display: flex; align-items: center; gap: 4px; }
+    .header-left .menu-fold-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 4px; font-size: 16px; color: #666; transition: all .15s; }
+    .header-left .menu-fold-btn:hover { background: #f5f5f5; color: #ff4d88; }
+    .header-left .brand { font-weight: 600; font-size: 15px; color: #333; margin-left: 8px; user-select: none; }
+    .app-header .header-right { display: flex; align-items: center; gap: 8px; }
+    .header-right .user-info { display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 8px; border-radius: 4px; font-size: 13px; color: #666; }
+    .header-right .user-info:hover { background: #f5f5f5; }
+    .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: #ff4d88; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; }
+    .main-area { display: flex; flex: 1; }
+    .sider { width: 200px; background: #fff; color: rgba(0,0,0,.8); flex-shrink: 0; overflow-y: auto; transition: width .2s; display: flex; flex-direction: column; border-right: 1px solid #f0f0f0; }
+    .sider.collapsed { width: 48px; }
+    .sider-logo { height: 48px; padding: 0 16px; display: flex; align-items: center; border-bottom: 1px solid #f0f0f0; font-size: 15px; font-weight: 600; color: rgba(0,0,0,.8); gap: 10px; overflow: hidden; }
+    .sider-logo .logo-icon { width: 24px; height: 24px; background: #ff4d88; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; flex-shrink: 0; }
+    .sider-logo .logo-text { white-space: nowrap; }
+    .sider-menu { flex: 1; padding: 4px 0; }
+    .sider-menu-item { display: flex; align-items: center; gap: 10px; padding: 0 16px; height: 40px; font-size: 13px; color: rgba(0,0,0,.6); cursor: pointer; text-decoration: none; transition: all .2s ease; white-space: nowrap; overflow: hidden; border-left: 3px solid transparent; }
+    .sider-menu-item .menu-icon { font-size: 14px; width: 16px; text-align: center; flex-shrink: 0; }
+    .sider-menu-item .menu-label { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+    .sider-menu-item .menu-arrow { font-size: 10px; color: rgba(0,0,0,.25); flex-shrink: 0; transition: transform .2s; }
+    .sider-menu-item .menu-arrow.open { transform: rotate(90deg); }
+    .sider-menu-item:hover { background: linear-gradient(90deg,rgba(255,77,136,.06),transparent); color: #ff4d88; }
+    .sider-menu-item.active { color: #ff4d88; background: linear-gradient(90deg,rgba(255,77,136,.08),rgba(255,77,136,.01)); border-left-color: #ff4d88; }
+    .sider-menu-item.parent-open { color: rgba(0,0,0,.8); font-weight: 500; }
+    .sider-submenu { overflow: hidden; transition: max-height .3s cubic-bezier(0.4,0,0.2,1); }
+    .sider-submenu .sider-menu-item { padding-left: 40px; height: 36px; font-size: 12px; border-left: 3px solid transparent; }
+    .sider-submenu .sider-menu-item.active { color: #ff4d88; background: #fff0f6; border-left-color: #ff4d88; font-weight: 500; }
+    .sider-submenu .sider-menu-item:not(.active):hover { background: linear-gradient(90deg,rgba(255,77,136,.06),transparent); color: #ff4d88; }
+    .content-area { flex: 1; background: #f0f2f5; overflow-y: auto; }
+    .page-body { padding: 16px 24px 24px; }
+    .breadcrumb { font-size: 13px; color: #999; margin-bottom: 16px; }
+    .breadcrumb a { color: #ff4d88; text-decoration: none; }
+    .breadcrumb a:hover { color: #ff3875; }
+    .breadcrumb span { color: #666; }
+    .detail-card { background: #fff; border-radius: 4px; padding: 24px; margin-bottom: 16px; }
+    .detail-card h5.section-title { font-size: 15px; font-weight: 600; color: #333; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
+    .detail-row { display: flex; align-items: flex-start; margin-bottom: 16px; }
+    .detail-row:last-child { margin-bottom: 0; }
+    .detail-label { width: 140px; flex-shrink: 0; padding-right: 12px; font-size: 13px; color: #888; line-height: 32px; text-align: right; }
+    .detail-content { flex: 1; min-height: 32px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 13px; color: #333; }
+    .detail-content .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; }
+    .tag.green { background: #f6ffed; color: #52c41a; }
+    .tag.red { background: #fff2f0; color: #ff4d4f; }
+    .tag.blue { background: #e6f7ff; color: #1890ff; }
+    .tag.orange { background: #fff7e6; color: #fa8c16; }
+    .detail-empty { color: #ccc; }
+    .detail-actions { display: flex; justify-content: center; gap: 12px; padding: 20px 0; }
+    .btn-primary { display: inline-flex; align-items: center; gap: 4px; height: 36px; padding: 0 24px; font-size: 14px; background: #ff4d88; color: #fff; border: 1px solid #ff4d88; border-radius: 4px; cursor: pointer; transition: all .2s; white-space: nowrap; text-decoration: none; }
+    .btn-primary:hover { background: #ff3875; }
+    .btn-back { display: inline-flex; align-items: center; height: 36px; padding: 0 24px; font-size: 14px; background: #fff; color: #666; border: 1px solid #d9d9d9; border-radius: 4px; cursor: pointer; transition: all .2s; text-decoration: none; }
+    .btn-back:hover { border-color: #ff4d88; color: #ff4d88; }
+    .loading-text { text-align: center; padding: 40px; color: #999; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div id="app" v-cloak>
+    <header class="app-header">
+      <div class="header-left">
+        <span class="menu-fold-btn" @click="siderCollapsed = !siderCollapsed">✕</span>
+        <span class="brand">订阅管理系统</span>
+      </div>
+      <div class="header-right">
+        <span class="user-info"><span class="user-avatar">张</span><span>张三</span><span>▾</span></span>
+      </div>
+    </header>
+    <div class="main-area">
+      <aside class="sider" :class="{ collapsed: siderCollapsed }">
+        <div class="sider-logo"><span class="logo-icon">♥</span><span class="logo-text" v-show="!siderCollapsed">导航菜单</span></div>
+        <div class="sider-menu">
+          <a class="sider-menu-item" href="/"><span class="menu-icon">📋</span><span class="menu-label" v-show="!siderCollapsed">订单管理</span></a>
+          <a class="sider-menu-item" href="/"><span class="menu-icon">👥</span><span class="menu-label" v-show="!siderCollapsed">用户管理</span></a>
+          <a class="sider-menu-item" href="/"><span class="menu-icon">🖼️</span><span class="menu-label" v-show="!siderCollapsed">素材管理</span></a>
+          <a class="sider-menu-item" href="/"><span class="menu-icon">🔗</span><span class="menu-label" v-show="!siderCollapsed">拼团管理</span></a>
+          <div class="sider-menu-item parent-open" @click="opToolsOpen = !opToolsOpen">
+            <span class="menu-icon">🔧</span><span class="menu-label" v-show="!siderCollapsed">运营工具</span>
+            <span class="menu-arrow" :class="{ open: opToolsOpen }" v-show="!siderCollapsed">▶</span>
+          </div>
+          <div class="sider-submenu" @click.stop :style="{ maxHeight: opToolsOpen && !siderCollapsed ? subMenuMaxHeight : '0' }">
+            <a class="sider-menu-item" href="/"><span class="menu-label">弹窗</span></a>
+            <a class="sider-menu-item" href="/"><span class="menu-label">兑换码</span></a>
+            <a class="sider-menu-item" href="javascript:void(0)" @click.stop="navigateTo('/gift-strategy/list')"><span class="menu-label">赠礼发放策略</span></a>
+            <a class="sider-menu-item" href="javascript:void(0)" @click.stop="navigateTo('/promotion-strategy/list')"><span class="menu-label">限时促销策略</span></a>
+            <a class="sider-menu-item" href="/"><span class="menu-label">赠礼物流管理</span></a>
+            <a class="sider-menu-item" href="javascript:void(0)" @click.stop="navigateTo('/event-pricing-strategy/list')"><span class="menu-label">活动价格策略</span></a>
+            <a class="sider-menu-item" href="javascript:void(0)" @click.stop="navigateTo('/event-operations-strategy/list')"><span class="menu-label">活动投放策略</span></a>
+          </div>
+          <div class="sider-menu-item parent-open" @click="deployOpen = !deployOpen">
+            <span class="menu-icon">📢</span><span class="menu-label" v-show="!siderCollapsed">运营位投放策略</span>
+            <span class="menu-arrow" :class="{ open: deployOpen }" v-show="!siderCollapsed">▶</span>
+          </div>
+          <div class="sider-submenu" @click.stop :style="{ maxHeight: deployOpen && !siderCollapsed ? '110px' : '0' }">
+            <a class="sider-menu-item" href="javascript:void(0)" @click.stop="navigateTo('/rights-pay/list')"><span class="menu-label">投放策略</span></a>
+            <a class="sider-menu-item" href="/"><span class="menu-label">页面模块展示</span></a>
+          </div>
+          <div class="sider-menu-item parent-open" @click="priceManageOpen = !priceManageOpen">
+            <span class="menu-icon">💰</span><span class="menu-label" v-show="!siderCollapsed">价格管理</span>
+            <span class="menu-arrow" :class="{ open: priceManageOpen }" v-show="!siderCollapsed">▶</span>
+          </div>
+          <div class="sider-submenu" @click.stop :style="{ maxHeight: priceManageOpen && !siderCollapsed ? subMenuMaxHeight : '0' }">
+            <a class="sider-menu-item" href="/"><span class="menu-label">价格套餐</span></a>
+            <a class="sider-menu-item" href="javascript:void(0)" @click.stop="navigateTo('/price-strategy/list')"><span class="menu-label">价格策略</span></a>
+            <a class="sider-menu-item" href="javascript:void(0)" @click.stop="navigateTo('/promotion-strategy/list')"><span class="menu-label">促销套餐</span></a>
+          </div>
+          <div class="sider-menu-item parent-open" :class="{ active: activeParent === 'product' }" @click="productManageOpen = !productManageOpen">
+            <span class="menu-icon">📦</span><span class="menu-label" v-show="!siderCollapsed">产品管理</span>
+            <span class="menu-arrow" :class="{ open: productManageOpen }" v-show="!siderCollapsed">▶</span>
+          </div>
+          <div class="sider-submenu" @click.stop :style="{ maxHeight: productManageOpen && !siderCollapsed ? subMenuMaxHeight : '0' }">
+            <a class="sider-menu-item" href="/"><span class="menu-label">权益库</span></a>
+            <a class="sider-menu-item active" href="javascript:void(0)" @click.stop="navigateTo('/gift/list')"><span class="menu-label">赠礼库</span></a>
+          </div>
+          <div class="sider-menu-item parent-open" @click="lotteryManageOpen = !lotteryManageOpen">
+            <span class="menu-icon">🎯</span><span class="menu-label" v-show="!siderCollapsed">抽奖管理</span>
+            <span class="menu-arrow" :class="{ open: lotteryManageOpen }" v-show="!siderCollapsed">▶</span>
+          </div>
+          <div class="sider-submenu" @click.stop :style="{ maxHeight: lotteryManageOpen && !siderCollapsed ? subMenuMaxHeight : '0' }">
+            <a class="sider-menu-item" href="javascript:void(0)" @click.stop="navigateTo('/prize/list')"><span class="menu-label">奖品管理</span></a>
+            <a class="sider-menu-item" href="javascript:void(0)" @click.stop="navigateTo('/coupon/list')"><span class="menu-label">抽奖券管理</span></a>
+          </div>
+          <a class="sider-menu-item" href="/"><span class="menu-icon">🏆</span><span class="menu-label" v-show="!siderCollapsed">中奖管理</span></a>
+          <a class="sider-menu-item" href="/"><span class="menu-icon">📜</span><span class="menu-label" v-show="!siderCollapsed">订阅管理</span></a>
+          <a class="sider-menu-item" href="/"><span class="menu-icon">📁</span><span class="menu-label" v-show="!siderCollapsed">素材库</span></a>
+          <a class="sider-menu-item" href="/"><span class="menu-icon">⚙️</span><span class="menu-label" v-show="!siderCollapsed">设置管理</span></a>
+          <a class="sider-menu-item" href="/"><span class="menu-icon">🏪</span><span class="menu-label" v-show="!siderCollapsed">第三方商户管理</span></a>
+          <a class="sider-menu-item" href="/"><span class="menu-icon">📚</span><span class="menu-label" v-show="!siderCollapsed">知识库</span></a>
+        </div>
+      </aside>
+
+      <main class="content-area">
+        <div class="page-body">
+          <div class="breadcrumb">
+            <a :href="'/gift/list'">赠礼库</a> / <span>查看</span>
+          </div>
+
+          <div v-if="loading" class="loading-text">加载中...</div>
+
+          <template v-if="!loading">
+            <!-- 基础信息 -->
+            <div class="detail-card">
+              <h5 class="section-title">基础信息</h5>
+              <div class="detail-row">
+                <div class="detail-label">赠礼ID：</div>
+                <div class="detail-content">{{ data.id }}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">赠礼来源：</div>
+                <div class="detail-content">{{ sourceLabel }}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">赠礼类型：</div>
+                <div class="detail-content">{{ giftTypeLabel }}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">发货类型：</div>
+                <div class="detail-content">
+                  <template v-if="deliverTypeLabel">{{ deliverTypeLabel }}</template>
+                  <span v-else class="detail-empty">—</span>
+                </div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">赠礼名称：</div>
+                <div class="detail-content">{{ data.name }}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">赠礼别名：</div>
+                <div class="detail-content">{{ data.alias }}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">应用版本：</div>
+                <div class="detail-content">
+                  <template v-if="data.version_min || data.version_max">{{ data.version_min || '不限' }} 至 {{ data.version_max || '不限' }}</template>
+                  <span v-else class="detail-empty">不限制</span>
+                </div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">赠礼成本：</div>
+                <div class="detail-content">{{ costLevelLabel }}</div>
+              </div>
+            </div>
+
+            <!-- 赠礼详情 -->
+            <div class="detail-card">
+              <h5 class="section-title">赠礼详情</h5>
+              <div class="detail-row">
+                <div class="detail-label">特权标识：</div>
+                <div class="detail-content">
+                  <template v-if="data.privilege_tag">{{ data.privilege_tag }}</template>
+                  <span v-else class="detail-empty">—</span>
+                </div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">赠礼价值：</div>
+                <div class="detail-content">{{ data.value }} 元/份</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">库存：</div>
+                <div class="detail-content">
+                  <template v-if="data.stock > 0">{{ data.stock }}</template>
+                  <span v-else class="detail-empty">不限制</span>
+                </div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">有效期：</div>
+                <div class="detail-content">{{ expireTypeLabel }}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">介绍说明：</div>
+                <div class="detail-content">{{ introTypeLabel }}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">领取/核销地址：</div>
+                <div class="detail-content">
+                  <template v-if="claimPageLabel">{{ claimPageLabel }}</template>
+                  <span v-else class="detail-empty">—</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 素材管理 -->
+            <div class="detail-card">
+              <h5 class="section-title">素材管理</h5>
+              <div class="detail-row">
+                <div class="detail-label">图标：</div>
+                <div class="detail-content">
+                  <template v-if="data.icon_preview">
+                    <img :src="data.icon_preview" style="width:80px;height:80px;object-fit:cover;border-radius:4px;" />
+                  </template>
+                  <span v-else class="detail-empty">未上传</span>
+                </div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">扩展图片：</div>
+                <div class="detail-content">
+                  <span class="detail-empty" v-if="!data.ext_images || data.ext_images.length === 0">未上传</span>
+                </div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">会员中心配图：</div>
+                <div class="detail-content">
+                  <span class="detail-empty">未上传</span>
+                </div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">支付成功弹窗配图：</div>
+                <div class="detail-content">
+                  <span class="detail-empty">未上传</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="detail-actions">
+              <a class="btn-primary" :href="`/gift/edit?id=${viewId}&coupon_biz=`">修 改</a>
+              <a class="btn-back" :href="'/gift/list'">返 回</a>
+            </div>
+          </template>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/vue@3.3.13/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.10/dayjs.min.js"></script>
+  <script>
+    const { createApp, ref, reactive, onMounted, computed } = Vue;
+    const USE_MOCK = true;
+    const API_CONFIG = { baseURL: '/api/vip-admin' };
+
+    const MOCK_DATA = [
+      { id: 275, name: '无扩展图片', alias: '1', deliver_type: '线上领取', gift_type: '实物', source: 'self', cost_level: '低价值', value: 10, stock: 100, expire_type: 'follow', intro_type: 'none', claim_page: '', privilege_tag: '', version_min: '', version_max: '', status: 1 },
+      { id: 274, name: '618半年卡抽奖1次', alias: '618半年卡奖券', deliver_type: '', gift_type: '抽奖次数', source: 'self', cost_level: '低价值', value: 5, stock: 0, expire_type: 'follow', intro_type: 'none', claim_page: '', privilege_tag: '', version_min: '', version_max: '', status: 1 },
+      { id: 273, name: '618千金净雅卫生巾', alias: '卫生巾', deliver_type: '线上领取', gift_type: '实物', source: 'self', cost_level: '高价值', value: 29, stock: 200, expire_type: 'follow', intro_type: 'popup', claim_page: 'vip_center', privilege_tag: '', version_min: '', version_max: '', status: 1 },
+      { id: 272, name: '618月卡抽奖1次', alias: '618月卡奖券', deliver_type: '', gift_type: '抽奖次数', source: 'self', cost_level: '低价值', value: 3, stock: 0, expire_type: 'follow', intro_type: 'none', claim_page: '', privilege_tag: '', version_min: '', version_max: '', status: 1 },
+      { id: 271, name: '618季卡抽奖1次', alias: '618季卡奖券', deliver_type: '', gift_type: '抽奖次数', source: 'self', cost_level: '低价值', value: 8, stock: 0, expire_type: 'follow', intro_type: 'none', claim_page: '', privilege_tag: '', version_min: '', version_max: '', status: 1 },
+      { id: 268, name: '618赠送30天会员', alias: '618活动', deliver_type: '', gift_type: '会员会期', source: 'self', cost_level: '低价值', value: 15, stock: 0, expire_type: 'follow', intro_type: 'none', claim_page: '', privilege_tag: '', version_min: '', version_max: '', status: 1 },
+      { id: 266, name: '618年卡抽奖1次', alias: '618年卡奖券', deliver_type: '', gift_type: '抽奖次数', source: 'self', cost_level: '低价值', value: 20, stock: 0, expire_type: 'follow', intro_type: 'none', claim_page: '', privilege_tag: '', version_min: '', version_max: '', status: 1 },
+      { id: 262, name: '0514弹窗空气', alias: '0514弹窗空气', deliver_type: '线上领取', gift_type: '实物', source: 'self', cost_level: '低价值', value: 1, stock: 50, expire_type: 'follow', intro_type: 'none', claim_page: '', privilege_tag: '', version_min: '', version_max: '', status: 1 },
+      { id: 261, name: '亲友兑换3人', alias: '3人团', deliver_type: '', gift_type: '邀请码', source: 'self', cost_level: '低价值', value: 0, stock: 0, expire_type: 'follow', intro_type: 'none', claim_page: '', privilege_tag: '', version_min: '', version_max: '', status: 1 },
+      { id: 260, name: '亲友兑换2人', alias: '亲友卡的邀请码', deliver_type: '', gift_type: '邀请码', source: 'self', cost_level: '低价值', value: 0, stock: 0, expire_type: 'follow', intro_type: 'none', claim_page: '', privilege_tag: '', version_min: '', version_max: '', status: 1 },
+      { id: 256, name: '美柚6天会员-副本', alias: '美柚6天会员', deliver_type: '', gift_type: '会员会期', source: 'self', cost_level: '低价值', value: 6, stock: 0, expire_type: 'follow', intro_type: 'none', claim_page: '', privilege_tag: '', version_min: '', version_max: '', status: 1 },
+      { id: 255, name: '906测试-无说明', alias: '906测试2-无说明', deliver_type: '', gift_type: '生活特权', source: 'self', cost_level: '低价值', value: 0, stock: 0, expire_type: 'follow', intro_type: 'none', claim_page: '', privilege_tag: '', version_min: '8.95.1', version_max: '', status: 1 },
+      { id: 254, name: '906测试-弹窗说明', alias: '906测试2-弹窗说明', deliver_type: '', gift_type: '生活特权', source: 'self', cost_level: '低价值', value: 0, stock: 0, expire_type: 'follow', intro_type: 'popup', claim_page: '', privilege_tag: '', version_min: '8.95.1', version_max: '', status: 1 },
+      { id: 253, name: '亲友卡兑换年卡*1', alias: '亲友卡兑换年卡*1', deliver_type: '', gift_type: '邀请码', source: 'self', cost_level: '低价值', value: 0, stock: 0, expire_type: 'follow', intro_type: 'none', claim_page: '', privilege_tag: '', version_min: '', version_max: '', status: 1 },
+      { id: 252, name: '亲友卡兑换年卡*2', alias: '亲友卡兑换年卡2', deliver_type: '', gift_type: '邀请码', source: 'self', cost_level: '低价值', value: 0, stock: 0, expire_type: 'follow', intro_type: 'none', claim_page: '', privilege_tag: '', version_min: '', version_max: '', status: 1 },
+      { id: 250, name: '测试赠礼-已失效', alias: '测试', deliver_type: '线上领取', gift_type: '实物', source: 'self', cost_level: '低价值', value: 1, stock: 0, expire_type: 'follow', intro_type: 'none', claim_page: '', privilege_tag: '', version_min: '', version_max: '', status: 2 },
+    ];
+
+    const SOURCE_LABELS = { self: '美柚自营', third: '第三方' };
+    const GIFT_TYPE_LABELS = { physical: '实物', coupon: '卡券', vip: '会员会期', lottery: '抽奖次数', invite: '邀请码' };
+    const COST_LABELS = { low: '低价值', high: '高价值' };
+    const EXPIRE_LABELS = { follow: '跟随订阅周期', relative: '相对时间' };
+    const INTRO_LABELS = { none: '无', popup: '弹窗介绍', page: '跳转页面' };
+    const CLAIM_PAGE_LABELS = { vip_center: '会员中心', order_list: '订单列表', personal_center: '个人中心', app_home: 'App首页' };
+
+    async function apiPost(path, body) {
+      const res = await fetch(API_CONFIG.baseURL + path, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', body: body ? JSON.stringify(body) : undefined
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    }
+
+    const app = createApp({
+      setup() {
+        const siderCollapsed = ref(false);
+        const opToolsOpen = ref(false);
+        const deployOpen = ref(false);
+        const priceManageOpen = ref(false);
+        const productManageOpen = ref(true);
+        const lotteryManageOpen = ref(false);
+        const activeParent = ref('product');
+        const subMenuMaxHeight = ref('2000px');
+        const loading = ref(true);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const viewId = urlParams.get('id') || '';
+
+        const data = reactive({
+          id: '', name: '', alias: '', deliver_type: '', gift_type: '', source: '',
+          cost_level: '', value: 0, stock: 0, expire_type: '', intro_type: '',
+          claim_page: '', privilege_tag: '', version_min: '', version_max: '',
+          icon_preview: '', ext_images: [], member_876: '', member_877: '', success_popup: '',
+        });
+
+        const sourceLabel = computed(() => SOURCE_LABELS[data.source] || data.source || '—');
+        const giftTypeLabel = computed(() => GIFT_TYPE_LABELS[data.gift_type] || data.gift_type || '—');
+        const deliverTypeLabel = computed(() => data.deliver_type || '');
+        const costLevelLabel = computed(() => COST_LABELS[data.cost_level] || data.cost_level || '—');
+        const expireTypeLabel = computed(() => EXPIRE_LABELS[data.expire_type] || data.expire_type || '—');
+        const introTypeLabel = computed(() => INTRO_LABELS[data.intro_type] || data.intro_type || '—');
+        const claimPageLabel = computed(() => CLAIM_PAGE_LABELS[data.claim_page] || data.claim_page || '');
+
+        function loadData() {
+          loading.value = true;
+          if (USE_MOCK) {
+            setTimeout(() => {
+              const item = MOCK_DATA.find(m => String(m.id) === String(viewId));
+              if (item) {
+                data.id = item.id;
+                data.name = item.name;
+                data.alias = item.alias;
+                data.source = item.source || 'self';
+                data.gift_type = GIFT_TYPE_LABELS[item.gift_type] ? Object.keys(GIFT_TYPE_LABELS).find(k => GIFT_TYPE_LABELS[k] === item.gift_type) || item.gift_type : item.gift_type;
+                data.deliver_type = item.deliver_type || '';
+                data.cost_level = item.cost_level === '高价值' ? 'high' : 'low';
+                data.value = item.value || 0;
+                data.stock = item.stock || 0;
+                data.expire_type = item.expire_type || 'follow';
+                data.intro_type = item.intro_type || 'none';
+                data.claim_page = item.claim_page || '';
+                data.privilege_tag = item.privilege_tag || '';
+                data.version_min = item.version_min || '';
+                data.version_max = item.version_max || '';
+              }
+              loading.value = false;
+            }, 200);
+          } else {
+            apiPost('/gift/detail', { id: viewId }).then(res => {
+              if (res.data) Object.assign(data, res.data);
+            }).finally(() => { loading.value = false; });
+          }
+        }
+
+        onMounted(loadData);
+
+        function navigateTo(url) {
+          if (location.hostname.includes('github.io')) {
+            const [path, query] = url.split('?');
+            const parts = path.replace(/^\//, '').replace(/\/$/, '').split('/');
+            window.location.href = parts.join('-') + '.html' + (query ? '?' + query : '');
+          } else { window.location.href = url; }
+        }
+
+        return {
+          siderCollapsed, opToolsOpen, deployOpen, priceManageOpen,
+          productManageOpen, lotteryManageOpen, activeParent, subMenuMaxHeight,
+          viewId, data, loading,
+          sourceLabel, giftTypeLabel, deliverTypeLabel, costLevelLabel,
+          expireTypeLabel, introTypeLabel, claimPageLabel,
+          navigateTo
+        };
+      }
+    });
+    app.mount('#app');
+  </script>
+</body>
+</html>

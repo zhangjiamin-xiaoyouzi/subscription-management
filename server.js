@@ -82,6 +82,8 @@ const server = http.createServer((req, res) => {
     '/coupon/list': 'coupon-list.html',
     '/gift/list': 'gift-list.html',
     '/gift/create': 'gift-create.html',
+    '/gift/edit': 'gift-edit.html',
+    '/gift/detail': 'gift-detail.html',
   };
 
   // ====== 静态文件 ======
