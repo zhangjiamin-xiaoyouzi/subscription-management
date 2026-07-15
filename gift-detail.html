@@ -57,9 +57,34 @@
     .tag.orange { background: #fff7e6; color: #fa8c16; }
     .detail-empty { color: #ccc; }
     .help-icon {
+      position: relative;
       display: inline-flex; align-items: center; justify-content: center;
       width: 14px; height: 14px; border-radius: 50%; background: #e8e8e8;
       color: #999; font-size: 10px; cursor: help; margin-left: 2px; vertical-align: middle;
+    }
+    .help-icon::after {
+      content: attr(data-tip);
+      position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,.78); color: #fff;
+      font-size: 12px; line-height: 1.5;
+      padding: 6px 10px; border-radius: 4px;
+      white-space: nowrap; pointer-events: none;
+      opacity: 0; visibility: hidden;
+      transition: opacity .15s, visibility .15s;
+      z-index: 9999;
+    }
+    .help-icon::before {
+      content: '';
+      position: absolute; bottom: calc(100% + 2px); left: 50%; transform: translateX(-50%);
+      border: 4px solid transparent;
+      border-top-color: rgba(0,0,0,.78);
+      opacity: 0; visibility: hidden;
+      transition: opacity .15s, visibility .15s;
+      z-index: 9999;
+    }
+    .help-icon:hover::after,
+    .help-icon:hover::before {
+      opacity: 1; visibility: visible;
     }
     .detail-actions { display: flex; justify-content: center; gap: 12px; padding: 20px 0; }
     .btn-primary { display: inline-flex; align-items: center; gap: 4px; height: 36px; padding: 0 24px; font-size: 14px; background: #ff4d88; color: #fff; border: 1px solid #ff4d88; border-radius: 4px; cursor: pointer; transition: all .2s; white-space: nowrap; text-decoration: none; }
@@ -235,7 +260,7 @@
               </div>
               <div class="detail-row">
                 <div class="detail-label">
-                  使用须知<span class="help-icon" title="发货类型=物流发货的实物奖品配置，配置后领取页展示使用须知模块">?</span>：
+                  使用须知<span class="help-icon" data-tip="发货类型=物流发货的实物奖品配置，配置后领取页展示使用须知模块">?</span>：
                 </div>
                 <div class="detail-content">
                   <div v-if="data.usage_notes" class="usage-notes-preview" v-html="data.usage_notes"></div>
