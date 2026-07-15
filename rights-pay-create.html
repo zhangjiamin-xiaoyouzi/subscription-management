@@ -298,12 +298,14 @@
       color: rgba(0,0,0,.65);
     }
     .record-banner-material {
-      display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
     }
     .record-banner-material .select-wrap,
-    .record-banner-material .record-banner-select {
+    .record-banner-material .record-banner-select,
+    .record-banner-material .select-trigger {
       flex: 1;
     }
+    .record-banner-material .btn-cancel { flex-shrink: 0; white-space: nowrap; }
     .record-banner-material-card {
       border: 1px solid #f0f0f0; border-radius: 2px; background: #fafafa;
       padding: 12px 14px;
@@ -448,6 +450,23 @@
     .dir-info { display: flex; align-items: center; font-size: 12px; }
     .dir-label { min-width: 56px; flex-shrink: 0; color: rgba(0,0,0,.45); white-space: nowrap; }
     .dir-value { color: rgba(0,0,0,.65); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* Analysis VIP Guide Record */
+    .analysis-record-list {
+      margin-top: 8px;
+    }
+    .analysis-record-item {
+      position: relative;
+      padding: 16px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .analysis-record-item:first-child { padding-top: 0; }
+    .analysis-record-item:last-child { border-bottom: none; }
+    .analysis-copy-btn {
+      position: absolute; right: 0; top: 50%;
+      transform: translateY(-50%);
+      white-space: nowrap;
+    }
     .active .dir-label { color: #ff4d88; }
     .active .dir-value { color: rgba(0,0,0,.85); }
 
@@ -1757,7 +1776,160 @@
               </template>
             </div>
 
-            <template v-if="!isRecordBannerPath && !isFixedPriceCardPath && !isMyTabMemberCardPath">
+            <!-- 分析列表会员引导入口 -->
+            <div class="record-banner-panel" v-else-if="isAnalysisVipGuidePath">
+              <div class="record-banner-form">
+                <div class="record-banner-grid">
+                  <div class="record-banner-field full">
+                    <div class="record-banner-label required">选择横幅展示的身份:</div>
+                    <div class="record-banner-control">
+                      <div class="record-banner-select" v-click-outside="() => analysisVipGuideForm.identityOpen = false">
+                        <div class="select-trigger" :class="{ open: analysisVipGuideForm.identityOpen }" @click="analysisVipGuideForm.identityOpen = !analysisVipGuideForm.identityOpen">
+                          <span :class="{ placeholder: !analysisVipGuideForm.identityMode }">{{ analysisVipGuideForm.identityMode || '请选择' }}</span>
+                        </div>
+                        <span class="select-arrow">▾</span>
+                        <div class="select-dropdown" v-show="analysisVipGuideForm.identityOpen">
+                          <div class="select-option" :class="{ selected: analysisVipGuideForm.identityMode === '' }" @click.stop="analysisVipGuideForm.identityMode = ''; analysisVipGuideForm.identityOpen = false">请选择</div>
+                          <div class="select-option" v-for="item in identityModeOptions" :key="item" :class="{ selected: analysisVipGuideForm.identityMode === item }" @click.stop="analysisVipGuideForm.identityMode = item; analysisVipGuideForm.identityOpen = false">{{ item }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="record-banner-field full">
+                    <div class="record-banner-label required">分析模块:</div>
+                    <div class="record-banner-control">
+                      <div class="record-banner-select" v-click-outside="() => analysisVipGuideForm.moduleOpen = false">
+                        <div class="select-trigger" :class="{ open: analysisVipGuideForm.moduleOpen }" @click="analysisVipGuideForm.moduleOpen = !analysisVipGuideForm.moduleOpen">
+                          <span :class="{ placeholder: !analysisVipGuideForm.analysisModule }">{{ analysisVipGuideForm.analysisModule || '请选择' }}</span>
+                        </div>
+                        <span class="select-arrow">▾</span>
+                        <div class="select-dropdown" v-show="analysisVipGuideForm.moduleOpen">
+                          <div class="select-option" :class="{ selected: analysisVipGuideForm.analysisModule === '' }" @click.stop="analysisVipGuideForm.analysisModule = ''; analysisVipGuideForm.moduleOpen = false">请选择</div>
+                          <div class="select-option" v-for="item in analysisModuleOptions" :key="item" :class="{ selected: analysisVipGuideForm.analysisModule === item }" @click.stop="analysisVipGuideForm.analysisModule = item; analysisVipGuideForm.moduleOpen = false">{{ item }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="record-banner-field full">
+                    <div class="record-banner-label">分析结果(多选):</div>
+                    <div class="record-banner-control">
+                      <div class="record-banner-select record-banner-multi-select" v-click-outside="() => analysisVipGuideForm.analysisResultMultiOpen = false">
+                        <div class="multi-select-tags" :class="{ open: analysisVipGuideForm.analysisResultMultiOpen }" @click="analysisVipGuideForm.analysisResultMultiOpen = !analysisVipGuideForm.analysisResultMultiOpen">
+                          <span class="tag-item" v-for="(item, idx) in analysisVipGuideForm.analysisResultMulti" :key="item">
+                            {{ item }}
+                            <span class="tag-close" @click.stop="analysisVipGuideForm.analysisResultMulti.splice(idx, 1)">×</span>
+                          </span>
+                          <span v-if="analysisVipGuideForm.analysisResultMulti.length === 0" class="placeholder-text">请选择</span>
+                        </div>
+                        <span class="select-arrow">▾</span>
+                        <div class="select-dropdown" v-show="analysisVipGuideForm.analysisResultMultiOpen">
+                          <div class="select-search-box" @click.stop>
+                            <input class="select-search-input" v-model="analysisVipGuideForm.analysisResultMultiSearch" placeholder="搜索分析结果..." />
+                            <span v-if="analysisVipGuideForm.analysisResultMultiSearch" class="search-clear" @click.stop="analysisVipGuideForm.analysisResultMultiSearch = ''">×</span>
+                          </div>
+                          <div class="select-option" v-for="item in filteredAnalysisResultMultiOptions" :key="item" :class="{ selected: analysisVipGuideForm.analysisResultMulti.includes(item) }" @click.stop="toggleAnalysisResultMulti(item)">{{ item }}</div>
+                          <div v-if="filteredAnalysisResultMultiOptions.length === 0" class="select-option-empty">暂无匹配结果</div>
+                        </div>
+                      </div>
+                      <div class="record-banner-tip">9.00.0及以上版本支持配置多项（与单选互斥）</div>
+                    </div>
+                  </div>
+
+                  <div class="record-banner-field full">
+                    <div class="record-banner-label">分析结果(单选):</div>
+                    <div class="record-banner-control">
+                      <div class="record-banner-select" v-click-outside="() => analysisVipGuideForm.analysisResultSingleOpen = false">
+                        <div class="select-trigger" :class="{ open: analysisVipGuideForm.analysisResultSingleOpen }" @click="analysisVipGuideForm.analysisResultSingleOpen = !analysisVipGuideForm.analysisResultSingleOpen">
+                          <span :class="{ placeholder: !analysisVipGuideForm.analysisResultSingle }">{{ analysisVipGuideForm.analysisResultSingle || '请选择' }}</span>
+                        </div>
+                        <span class="select-arrow">▾</span>
+                        <div class="select-dropdown" v-show="analysisVipGuideForm.analysisResultSingleOpen">
+                          <div class="select-option" :class="{ selected: analysisVipGuideForm.analysisResultSingle === '' }" @click.stop="analysisVipGuideForm.analysisResultSingle = ''; analysisVipGuideForm.analysisResultSingleOpen = false">请选择</div>
+                          <div class="select-option" v-for="item in analysisResultSingleOptions" :key="item" :class="{ selected: analysisVipGuideForm.analysisResultSingle === item }" @click.stop="analysisVipGuideForm.analysisResultSingle = item; analysisVipGuideForm.analysisResultSingleOpen = false">{{ item }}</div>
+                        </div>
+                      </div>
+                      <div class="record-banner-tip">不限版本，单选（与多选互斥）</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 记录列表 -->
+                <div class="analysis-record-list">
+                  <div v-for="(record, ri) in analysisVipGuideForm.records" :key="record.id" class="analysis-record-item">
+                    <div class="record-banner-grid">
+                      <div class="record-banner-field full">
+                        <div class="record-banner-label required">选择素材:</div>
+                        <div class="record-banner-control">
+                          <div class="record-banner-material">
+                            <div class="record-banner-select" v-click-outside="() => record.materialOpen = false">
+                              <div class="select-trigger" :class="{ open: record.materialOpen }" @click="record.materialOpen = !record.materialOpen">
+                                <span :class="{ placeholder: !record.materialId }">{{ getAnalysisMaterialName(record.materialId) }}</span>
+                              </div>
+                              <span class="select-arrow">▾</span>
+                              <div class="select-dropdown" v-show="record.materialOpen">
+                                <div class="select-option" :class="{ selected: record.materialId === '' }" @click.stop="record.materialId = ''; record.materialOpen = false">请选择</div>
+                                <div class="select-option" v-for="item in analysisMaterialOptions" :key="item.id" :class="{ selected: record.materialId === item.id }" @click.stop="record.materialId = item.id; record.materialOpen = false">{{ item.name }}</div>
+                              </div>
+                            </div>
+                            <a class="btn-cancel" href="https://test-admin.meiyou.com/app/test-sub-admin.seeyouyima.com/material-library/list?tab_id=1" target="_blank" rel="noopener noreferrer">管理素材</a>
+                            <button class="btn-cancel" type="button" @click="refreshAnalysisMaterials">刷新</button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="record-banner-field full">
+                        <div class="record-banner-label">展示文案:</div>
+                        <div class="record-banner-control">
+                          <div class="record-banner-select is-disabled">
+                            <div class="select-trigger disabled">
+                              <span :class="{ placeholder: !record.displayText }">{{ record.displayText || '请选择' }}</span>
+                            </div>
+                            <span class="select-arrow">▾</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="record-banner-field full">
+                        <div class="record-banner-label">跳转地址:</div>
+                        <div class="record-banner-control">
+                          <div class="record-banner-select" v-click-outside="() => record.jumpUrlOpen = false">
+                            <div class="select-trigger" :class="{ open: record.jumpUrlOpen }" @click="record.jumpUrlOpen = !record.jumpUrlOpen">
+                              <span :class="{ placeholder: !record.jumpUrl }">{{ record.jumpUrl || '请选择跳转页面' }}</span>
+                            </div>
+                            <span class="select-arrow">▾</span>
+                            <div class="select-dropdown" v-show="record.jumpUrlOpen">
+                              <div class="select-option" :class="{ selected: record.jumpUrl === '' }" @click.stop="record.jumpUrl = ''; record.jumpUrlOpen = false">请选择跳转页面</div>
+                              <div class="select-option" v-for="item in analysisJumpTargets" :key="item" :class="{ selected: record.jumpUrl === item }" @click.stop="record.jumpUrl = item; record.jumpUrlOpen = false">{{ item }}</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button class="btn-cancel analysis-copy-btn" type="button" @click="copyAnalysisRecord(ri)">复 制</button>
+                  </div>
+                </div>
+
+                <!-- 新增记录按钮 -->
+                <div style="margin-top: 12px; display: flex; align-items: center; gap: 8px;">
+                  <button class="btn-dir-add" type="button" @click="addAnalysisRecord" style="display:flex;align-items:center;gap:4px;">
+                    <span style="font-size:14px;">＋</span> 新增记录
+                  </button>
+                </div>
+
+                <!-- 拖拽排序提示 -->
+                <div style="margin-top: 16px; padding: 12px 0; border-top: 1px solid #f0f0f0; display: flex; align-items: center; gap: 12px;">
+                  <span style="font-size: 13px; color: rgba(0,0,0,.65);">支持拖拽排序</span>
+                  <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: rgba(0,0,0,.45); padding: 4px 10px; background: #fafafa; border-radius: 4px;">
+                    <span style="font-size:14px;">☰</span> 【{{ analysisVipGuideForm.analysisModule || '请选择分析模块' }}】
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <template v-if="!isRecordBannerPath && !isFixedPriceCardPath && !isMyTabMemberCardPath && !isAnalysisVipGuidePath">
               <button class="btn-dashed-block" @click="openCompModal" v-if="selectedComponents.length === 0">
                 <span style="font-size:14px;">＋</span> 从组件库选择
               </button>
@@ -2272,6 +2444,10 @@
         modules: [{ key: 'MY_TAB_MEMBER_CARD', name: '我tab会员卡片' }],
         locations: [{ key: 'MY_TAB_MEMBER_CARD_TEXT', name: '卡片文案', icon: '📝' }],
       },
+      ANALYSIS_LIST: {
+        modules: [{ key: 'ANALYSIS_MODULE', name: '分析模块' }],
+        locations: [{ key: 'ANALYSIS_VIP_GUIDE', name: '分析列表会员引导入口', icon: '🎯' }],
+      },
     };
 
     createApp({
@@ -2303,6 +2479,7 @@
             { key: 'PERIOD_REPORT', name: '经期今日密报', tags: ['个性化数据', '曝光转化'], desc: '展示经期当天密报和相关数据的页面', icon: '📰', category: 'rights' },
             { key: 'RIGHTS_2', name: '排卵试纸页', tags: ['备孕身份', '个性化数据'], desc: '针对备孕用户展示排卵试纸相关功能', icon: '🔬', category: 'rights' },
             { key: 'RIGHTS_3', name: '爱康国宾免费体检', tags: ['买赠', '下单转化'], desc: '购买后可获得体检权益', icon: '🏥', category: 'rights' },
+            { key: 'ANALYSIS_LIST', name: '分析列表页', tags: ['个性化数据', '曝光转化'], desc: '分析模块列表页，含会员引导入口运营位', icon: '📈', category: 'rights' },
           ],
           pageSelectModal: {
             visible: false,
@@ -2324,7 +2501,7 @@
           pageNameMap: {
             'PAY_STUDENT': '学生开卡页', 'PAY_WINDOW': '支付转化页',
             'MY_TAB': '我tab页面', 'RIGHTS_DETAIL': '权益详情页', 'VIP_CENTER': '会员中心页',
-            'RECORD': '记录Tab', 'PERIOD_REPORT': '经期今日密报',
+            'RECORD': '记录Tab', 'PERIOD_REPORT': '经期今日密报', 'ANALYSIS_LIST': '分析列表页',
           },
           moduleNameMap: {
             'PRICE': '价格卡片', 'CARD_TOP': '价格上方banner',
@@ -2333,11 +2510,13 @@
             'MY_TAB_RIGHT_MARKETING': '右侧运营位', 'MY_TAB_BTN_BADGE': '按钮角标',
             'PRICE_TAG': '限时标签',
             'BANNER': '记录横幅', 'PERIOD_REPORT_BANNER': '经期今日密报模块横幅',
+            'ANALYSIS_MODULE': '分析模块',
           },
           locationNameMap: {
             'INFO_FLOW': '信息流', 'DEFAULT': '默认', 'PRICE_SORT_DISPLAY': '价格排序与展示', 'RECORD_BANNER': '记录横幅',
             'PERIOD_REPORT_BANNER': '经期今日密报模块横幅',
             'MY_TAB_MEMBER_CARD_TEXT': '卡片文案',
+            'ANALYSIS_VIP_GUIDE': '分析列表会员引导入口',
           },
 
           planOptions: [
@@ -2372,6 +2551,29 @@
               }
             ],
             activeContentGroupIndex: 0,
+          },
+
+          // ANALYSIS_VIP_GUIDE form
+          analysisVipGuideForm: {
+            identityMode: '',   // 选择横幅展示的身份
+            identityOpen: false,
+            analysisModule: '', // 分析模块
+            moduleOpen: false,
+            analysisResultMulti: [],    // 分析结果(多选)
+            analysisResultMultiSearch: '',
+            analysisResultMultiOpen: false,
+            analysisResultSingle: '',   // 分析结果(单选)
+            analysisResultSingleOpen: false,
+            records: [
+              {
+                id: 1,
+                materialId: '',
+                materialOpen: false,
+                displayText: '',
+                jumpUrl: '',
+                jumpUrlOpen: false,
+              }
+            ],
           },
 
           // Component library
@@ -2482,6 +2684,20 @@
             try { return JSON.parse(localStorage.getItem('price_card_copy_history') || '{}'); } catch { return {}; }
           })(),
           showCopyHistoryTip: false,
+
+          // ANALYSIS_VIP_GUIDE 选项
+          identityModeOptions: ['经期', '备孕', '怀孕', '育儿', '普通'],
+          analysisModuleOptions: ['101-周期变化', '102-周期规律', '103-经期天数', '104-经期流量', '105-痛经程度', '106-经期症状', '107-非经期症状', '108-白带变化'],
+          analysisModuleOpen: false,
+          analysisResultMultiOpen: false,
+          analysisResultSingleOpen: false,
+          analysisMaterialOptions: [
+            { id: 'am_1', name: '会员引导横幅-经期-A', displayText: '立即开通会员，享更多专属分析', jumpUrl: '会员中心页' },
+            { id: 'am_2', name: '会员引导横幅-经期-B', displayText: '开通会员解锁深度周期分析', jumpUrl: '会员中心页' },
+            { id: 'am_3', name: '会员引导横幅-备孕', displayText: '开通会员解锁备孕深度分析', jumpUrl: '会员中心页' },
+            { id: 'am_4', name: '会员引导横幅-育儿', displayText: '升级会员，获取宝宝发育报告', jumpUrl: '会员权益页' },
+          ],
+          analysisJumpTargets: ['会员中心页', '会员权益页', '记录tab活动页', 'H5链接'],
 
           componentLibrary: [
             {
@@ -2642,6 +2858,38 @@
             && this.form.moduleKey === 'MY_TAB_MEMBER_CARD'
             && this.form.locationKey === 'MY_TAB_MEMBER_CARD_TEXT';
         },
+        isAnalysisVipGuidePath() {
+          return this.form.pageKey === 'ANALYSIS_LIST'
+            && this.form.moduleKey === 'ANALYSIS_MODULE'
+            && this.form.locationKey === 'ANALYSIS_VIP_GUIDE';
+        },
+        // ANALYSIS_VIP_GUIDE: 根据选中的分析模块推导分析结果选项
+        analysisResultBaseOptions() {
+          const mod = this.analysisVipGuideForm.analysisModule;
+          if (!mod) return [];
+          // 模块格式: "101-周期变化" → 提取 categoryId
+          const match = mod.match(/^(\d+)-(.+)$/);
+          if (!match) return [];
+          const categoryId = parseInt(match[1]);
+          const categoryName = match[2];
+          // 根据模块生成分析结果选项 (模拟: 从模块ID推导子项)
+          const categoryMap = { 1: '周期天数', 2: '周期规律性', 3: '经期天数', 4: '流量', 5: '痛经', 6: '经期症状', 7: '非经期症状', 8: '白带变化' };
+          const baseCategory = categoryMap[categoryId] || categoryName;
+          return [
+            `【${mod}】${baseCategory}-正常`,
+            `【${mod}】${baseCategory}-偏少`,
+            `【${mod}】${baseCategory}-偏多`,
+            `【${mod}】${baseCategory}-异常`,
+          ];
+        },
+        filteredAnalysisResultMultiOptions() {
+          const search = (this.analysisVipGuideForm.analysisResultMultiSearch || '').trim().toLowerCase();
+          if (!search) return this.analysisResultBaseOptions;
+          return this.analysisResultBaseOptions.filter(item => item.toLowerCase().includes(search));
+        },
+        analysisResultSingleOptions() {
+          return this.analysisResultBaseOptions;
+        },
         activeMyTabGroup() {
           return this.myTabMemberCardForm.contentGroups[this.myTabMemberCardForm.activeContentGroupIndex] || this.myTabMemberCardForm.contentGroups[0];
         },
@@ -2801,6 +3049,26 @@
         // 监听价格卡片组件的 packageName 变化，检测历史文案
         'fixedPriceCardComponent.packageName'(newName, oldName) {
           this.showCopyHistoryTip = !!(newName && this.priceCardCopyHistory[newName]);
+        },
+        // 监听分析会员引导素材选择，自动填入文案和跳转地址
+        'analysisVipGuideForm.records': {
+          deep: true,
+          handler() {
+            this.analysisVipGuideForm.records.forEach(record => {
+              if (record.materialId) {
+                const material = this.analysisMaterialOptions.find(m => m.id === record.materialId);
+                if (material) {
+                  if (!record.displayText) record.displayText = material.displayText;
+                  if (!record.jumpUrl) record.jumpUrl = material.jumpUrl;
+                }
+              }
+            });
+          }
+        },
+        // 切换分析模块时清空分析结果
+        'analysisVipGuideForm.analysisModule'() {
+          this.analysisVipGuideForm.analysisResultMulti = [];
+          this.analysisVipGuideForm.analysisResultSingle = '';
         },
       },
 
@@ -3221,6 +3489,48 @@
           }
         },
 
+        // ---- Analysis VIP Guide methods ----
+        getAnalysisMaterialName(materialId) {
+          if (!materialId) return '请选择';
+          const found = this.analysisMaterialOptions.find(m => m.id === materialId);
+          return found ? found.name : '请选择';
+        },
+        toggleAnalysisResultMulti(item) {
+          const idx = this.analysisVipGuideForm.analysisResultMulti.indexOf(item);
+          if (idx >= 0) {
+            this.analysisVipGuideForm.analysisResultMulti.splice(idx, 1);
+          } else {
+            this.analysisVipGuideForm.analysisResultMulti.push(item);
+          }
+        },
+        addAnalysisRecord() {
+          const maxId = Math.max(0, ...this.analysisVipGuideForm.records.map(r => r.id));
+          this.analysisVipGuideForm.records.push({
+            id: maxId + 1,
+            materialId: '',
+            materialOpen: false,
+            displayText: '',
+            jumpUrl: '',
+            jumpUrlOpen: false,
+          });
+        },
+        copyAnalysisRecord(ri) {
+          const src = this.analysisVipGuideForm.records[ri];
+          const maxId = Math.max(0, ...this.analysisVipGuideForm.records.map(r => r.id));
+          const copy = JSON.parse(JSON.stringify(src));
+          copy.id = maxId + 1;
+          copy.materialOpen = false;
+          copy.jumpUrlOpen = false;
+          this.analysisVipGuideForm.records.splice(ri + 1, 0, copy);
+        },
+        deleteAnalysisRecord(ri) {
+          if (this.analysisVipGuideForm.records.length <= 1) return;
+          this.analysisVipGuideForm.records.splice(ri, 1);
+        },
+        refreshAnalysisMaterials() {
+          this.showToast('素材列表已刷新');
+        },
+
         // ---- Condition helpers ----
         getFieldLabel(fv) { const fd = getFieldDef(fv); return fd ? fd.label : fv; },
         getOperatorLabel(op) { return OPERATOR_LABELS[op] || op; },
@@ -3374,6 +3684,21 @@
                 jumpTarget: o.jumpTarget,
               })),
               expireDays: this.recordBannerForm.expireDays,
+            };
+          }
+
+          if (this.isAnalysisVipGuidePath) {
+            payload.analysisVipGuideContent = {
+              identityMode: this.analysisVipGuideForm.identityMode,
+              analysisModule: this.analysisVipGuideForm.analysisModule,
+              analysisResultMulti: this.analysisVipGuideForm.analysisResultMulti,
+              analysisResultSingle: this.analysisVipGuideForm.analysisResultSingle,
+              records: this.analysisVipGuideForm.records.map(r => ({
+                materialId: r.materialId,
+                materialName: this.getAnalysisMaterialName(r.materialId),
+                displayText: r.displayText,
+                jumpUrl: r.jumpUrl,
+              })),
             };
           }
 
