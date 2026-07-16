@@ -462,11 +462,7 @@
     }
     .analysis-record-item:first-child { padding-top: 0; }
     .analysis-record-item:last-child { border-bottom: none; }
-    .analysis-copy-btn {
-      position: absolute; right: 0; top: 50%;
-      transform: translateY(-50%);
-      white-space: nowrap;
-    }
+    .analysis-copy-btn { white-space: nowrap; }
     .active .dir-label { color: #ff4d88; }
     .active .dir-value { color: rgba(0,0,0,.85); }
 
@@ -1013,7 +1009,46 @@
     .toast.error { background: #ff4d4f; }
     .fade-enter-active, .fade-leave-active { transition: opacity .3s; }
     .fade-enter-from, .fade-leave-to { opacity: 0; }
+
+    /* 需求说明标注样式 */
+    .req-anno-btn{display:inline-block;background:#e67e00;color:#fff;border:none;border-radius:3px;
+      padding:1px 7px;font-size:11px;line-height:18px;cursor:pointer;margin-right:8px;
+      vertical-align:middle;font-weight:600;opacity:.9}
+    .req-anno-btn:hover{background:#cf6c00;opacity:1}
+    .req-anno-box{display:none}
+    #__req_modal__ *{box-sizing:border-box}
   </style>
+  <script>
+  function toggleReqAnno(btn) {
+    var box = btn.parentElement.querySelector('.req-anno-box');
+    if (!box) return;
+    if (document.getElementById('__req_modal__')) return;
+    var ov = document.createElement('div');
+    ov.id = '__req_modal__';
+    ov.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);'
+      + 'z-index:999998;display:flex;align-items:center;justify-content:center';
+    var card = document.createElement('div');
+    card.style.cssText = 'background:#fff;border-radius:8px;padding:24px 28px 20px;max-width:420px;'
+      + 'width:92%;box-shadow:0 8px 32px rgba(0,0,0,.22);position:relative;border-top:4px solid #e67e00';
+    var cls = document.createElement('button');
+    cls.innerHTML = '&times;';
+    cls.style.cssText = 'position:absolute;top:10px;right:14px;background:none;border:none;'
+      + 'font-size:22px;line-height:1;cursor:pointer;color:#aaa;padding:0';
+    cls.onclick = function () { ov.remove(); };
+    var ttl = document.createElement('div');
+    ttl.style.cssText = 'font-size:13px;font-weight:700;color:#e67e00;margin-bottom:12px;letter-spacing:.5px';
+    ttl.textContent = '📋 需求说明';
+    var body = document.createElement('div');
+    body.style.cssText = 'font-size:12px;color:#5a4000;line-height:1.9;white-space:pre-line;'
+      + 'background:#fffbe6;padding:12px 14px;border-radius:6px;border-left:3px solid #e67e00;'
+      + 'max-height:60vh;overflow-y:auto';
+    body.textContent = box.textContent.trim();
+    card.appendChild(cls); card.appendChild(ttl); card.appendChild(body);
+    ov.appendChild(card);
+    ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+    document.body.appendChild(ov);
+  }
+  </script>
 </head>
 <body>
   <div id="app" v-cloak>
@@ -1812,6 +1847,48 @@
                     </div>
                   </div>
 
+                  <!-- 分析结果(9.09.0及以上版本配置) - 仅经期身份显示 -->
+                  <div class="record-banner-field full" v-if="analysisVipGuideForm.identityMode === '经期'">
+                    <div class="record-banner-label">
+                      <button class="req-anno-btn" onclick="toggleReqAnno(this)">需求说明</button>
+                      分析结果(9.09.0及以上版本配置):
+                      <div class="req-anno-box">【分析结果(9.09.0及以上版本配置)】
+1. 显示条件：仅当"选择横幅展示的身份"选择"经期"时显示此字段
+2. 联动规则：根据"分析模块"的选择动态显示对应的分析结果选项
+   - 周期变化：周期变长、周期变短、周期不规律
+   - 经期变化：经期延长、经期缩短
+   - 流量变化：流量增多、流量减少
+   - 痛经情况：痛经加重、痛经减轻、无痛经
+   - 症状分析：根据具体症状显示对应选项
+3. 版本限制：仅9.09.0及以上版本生效，低版本不展示此配置项
+4. 多选支持：可选择多个分析结果，已选项以标签形式展示
+5. 搜索功能：支持在下拉框中搜索分析结果</div>
+                    </div>
+                    <div class="record-banner-control">
+                      <div class="record-banner-select record-banner-multi-select" :class="{ 'is-disabled': !analysisVipGuideForm.analysisModule }" v-click-outside="() => analysisVipGuideForm.analysisResultLatestOpen = false">
+                        <div class="multi-select-tags" :class="{ open: analysisVipGuideForm.analysisResultLatestOpen, disabled: !analysisVipGuideForm.analysisModule }" @click="analysisVipGuideForm.analysisResultLatestOpen = !analysisVipGuideForm.analysisResultLatestOpen">
+                          <span class="tag-item" v-for="(item, idx) in analysisVipGuideForm.analysisResultLatest" :key="item">
+                            {{ item }}
+                            <span class="tag-close" @click.stop="toggleAnalysisLatestOption(item)">×</span>
+                          </span>
+                          <span v-if="analysisVipGuideForm.analysisResultLatest.length === 0" class="placeholder-text">请选择</span>
+                        </div>
+                        <span class="select-arrow">▾</span>
+                        <div class="select-dropdown select-dropdown-grouped" v-show="analysisVipGuideForm.analysisResultLatestOpen && analysisVipGuideForm.analysisModule">
+                          <div class="select-search-box" @click.stop>
+                            <input class="select-search-input" v-model="analysisVipGuideForm.analysisResultLatestSearch" placeholder="搜索分析结果..." />
+                            <span v-if="analysisVipGuideForm.analysisResultLatestSearch" class="search-clear" @click.stop="analysisVipGuideForm.analysisResultLatestSearch = ''">×</span>
+                          </div>
+                          <template v-for="g in filteredAnalysisLatestOptions" :key="g.group">
+                            <div class="select-option-group">{{ g.group }}</div>
+                            <div class="select-option" v-for="item in g.items" :key="item" :class="{ selected: analysisVipGuideForm.analysisResultLatest.includes(item) }" @click.stop="toggleAnalysisLatestOption(item)">{{ item }}</div>
+                          </template>
+                          <div v-if="filteredAnalysisLatestOptions.length === 0" class="select-option-empty">暂无匹配结果</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   <div class="record-banner-field full">
                     <div class="record-banner-label">分析结果(多选):</div>
                     <div class="record-banner-control">
@@ -1907,8 +1984,9 @@
                         </div>
                       </div>
                     </div>
-
-                    <button class="btn-cancel analysis-copy-btn" type="button" @click="copyAnalysisRecord(ri)">复 制</button>
+                    <div style="margin-top: 8px; text-align: right;">
+                      <button class="btn-cancel" type="button" @click="copyAnalysisRecord(ri)">复 制</button>
+                    </div>
                   </div>
                 </div>
 
@@ -1918,13 +1996,22 @@
                     <span style="font-size:14px;">＋</span> 新增记录
                   </button>
                 </div>
+              </div>
 
-                <!-- 拖拽排序提示 -->
-                <div style="margin-top: 16px; padding: 12px 0; border-top: 1px solid #f0f0f0; display: flex; align-items: center; gap: 12px;">
-                  <span style="font-size: 13px; color: rgba(0,0,0,.65);">支持拖拽排序</span>
-                  <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: rgba(0,0,0,.45); padding: 4px 10px; background: #fafafa; border-radius: 4px;">
-                    <span style="font-size:14px;">☰</span> 【{{ analysisVipGuideForm.analysisModule || '请选择分析模块' }}】
-                  </span>
+              <!-- 拖拽排序 - 投放内容右侧 -->
+              <div class="record-banner-directory">
+                <div class="directory-header">
+                  <span class="directory-title">投放内容目录</span>
+                </div>
+                <div class="directory-list">
+                  <div style="padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                    <span style="font-size: 13px; color: rgba(0,0,0,.65); display: flex; align-items: center; gap: 6px;">
+                      <span style="font-size:14px;">☰</span> 支持拖拽排序
+                    </span>
+                    <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: rgba(0,0,0,.45); padding: 4px 10px; background: #fafafa; border-radius: 4px;">
+                      【{{ analysisVipGuideForm.analysisModule || '请选择分析模块' }}】
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2559,6 +2646,9 @@
             identityOpen: false,
             analysisModule: '', // 分析模块
             moduleOpen: false,
+            analysisResultLatest: [],    // 分析结果(9.09.0及以上版本配置)
+            analysisResultLatestSearch: '',
+            analysisResultLatestOpen: false,
             analysisResultMulti: [],    // 分析结果(多选)
             analysisResultMultiSearch: '',
             analysisResultMultiOpen: false,
@@ -2687,7 +2777,7 @@
 
           // ANALYSIS_VIP_GUIDE 选项
           identityModeOptions: ['经期', '备孕', '怀孕', '育儿', '普通'],
-          analysisModuleOptions: ['101-周期变化', '102-周期规律', '103-经期天数', '104-经期流量', '105-痛经程度', '106-经期症状', '107-非经期症状', '108-白带变化'],
+          analysisModuleOptions: ['101-周期变化', '103-经期变化', '104-流量变化', '105-痛经情况', '106-症状分析'],
           analysisModuleOpen: false,
           analysisResultMultiOpen: false,
           analysisResultSingleOpen: false,
@@ -2873,7 +2963,7 @@
           const categoryId = parseInt(match[1]);
           const categoryName = match[2];
           // 根据模块生成分析结果选项 (模拟: 从模块ID推导子项)
-          const categoryMap = { 1: '周期天数', 2: '周期规律性', 3: '经期天数', 4: '流量', 5: '痛经', 6: '经期症状', 7: '非经期症状', 8: '白带变化' };
+          const categoryMap = { 1: '周期变化', 3: '经期变化', 4: '流量变化', 5: '痛经情况', 6: '症状分析' };
           const baseCategory = categoryMap[categoryId] || categoryName;
           return [
             `【${mod}】${baseCategory}-正常`,
@@ -2886,6 +2976,31 @@
           const search = (this.analysisVipGuideForm.analysisResultMultiSearch || '').trim().toLowerCase();
           if (!search) return this.analysisResultBaseOptions;
           return this.analysisResultBaseOptions.filter(item => item.toLowerCase().includes(search));
+        },
+        // 分析结果(9.09.0及以上版本配置) - 分组选项
+        filteredAnalysisLatestOptions() {
+          const mod = this.analysisVipGuideForm.analysisModule;
+          if (!mod) return [];
+          const search = (this.analysisVipGuideForm.analysisResultLatestSearch || '').trim().toLowerCase();
+          // 模块格式: "101-周期变化" → 提取 categoryId
+          const match = mod.match(/^(\d+)-(.+)$/);
+          if (!match) return [];
+          const categoryId = parseInt(match[1]);
+          const categoryName = match[2];
+          // 根据模块ID生成对应的分析结果选项
+          const optionsMap = {
+            101: { group: '周期变化', items: ['周期变长', '周期变短', '周期不规律'] },
+            103: { group: '经期变化', items: ['经期延长', '经期缩短'] },
+            104: { group: '流量变化', items: ['流量增多', '流量减少'] },
+            105: { group: '痛经情况', items: ['痛经加重', '痛经减轻', '无痛经'] },
+            106: { group: '症状分析', items: ['症状加重', '症状减轻', '无症状'] },
+          };
+          const optionData = optionsMap[categoryId] || { group: categoryName, items: [] };
+          let items = optionData.items;
+          if (search) {
+            items = items.filter(item => item.toLowerCase().includes(search));
+          }
+          return items.length > 0 ? [{ group: optionData.group, items }] : [];
         },
         analysisResultSingleOptions() {
           return this.analysisResultBaseOptions;
@@ -3501,6 +3616,15 @@
             this.analysisVipGuideForm.analysisResultMulti.splice(idx, 1);
           } else {
             this.analysisVipGuideForm.analysisResultMulti.push(item);
+          }
+        },
+        // 分析结果(9.09.0及以上版本配置) - 切换选项
+        toggleAnalysisLatestOption(item) {
+          const idx = this.analysisVipGuideForm.analysisResultLatest.indexOf(item);
+          if (idx >= 0) {
+            this.analysisVipGuideForm.analysisResultLatest.splice(idx, 1);
+          } else {
+            this.analysisVipGuideForm.analysisResultLatest.push(item);
           }
         },
         addAnalysisRecord() {
