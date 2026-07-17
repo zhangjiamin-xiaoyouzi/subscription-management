@@ -56,7 +56,7 @@
     .sider-submenu .sider-menu-item.active { color: #ff4d88; background: #fff0f6; border-left-color: #ff4d88; font-weight: 500; }
     .sider-submenu .sider-menu-item:not(.active):hover { background: linear-gradient(90deg,rgba(255,77,136,.06),transparent); color: #ff4d88; }
 
-    .content-area { flex: 1; background: #f0f2f5; overflow-x: auto; }
+    .content-area { flex: 1; background: #fff; overflow-x: auto; }
     .page-body { background: #fff; padding: 16px 24px 24px; min-height: 100%; }
     .page-title { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 4px; }
     .page-desc { font-size: 13px; color: #666; margin-bottom: 16px; }
@@ -602,6 +602,10 @@
             modules: [{ key: 'PERIOD_REPORT_BANNER', name: '经期今日密报模块横幅' }],
             locations: [{ key: 'PERIOD_REPORT_BANNER', name: '经期今日密报模块横幅', icon: '📰' }],
           },
+          ANALYSIS_LIST: {
+            modules: [{ key: 'ANALYSIS_MODULE', name: '分析模块' }],
+            locations: [{ key: 'ANALYSIS_VIP_GUIDE', name: '分析列表会员引导入口', icon: '🎯' }],
+          },
         };
 
         // 内联编辑
@@ -892,6 +896,7 @@
           { key: 'PERIOD_REPORT', name: '经期今日密报', tags: ['个性化数据', '曝光转化'], desc: '展示经期当天密报和相关数据的页面', icon: '📰', category: 'rights' },
           { key: 'RIGHTS_2', name: '排卵试纸页', tags: ['备孕身份', '个性化数据'], desc: '针对备孕用户展示排卵试纸相关功能', icon: '🔬', category: 'rights' },
           { key: 'RIGHTS_3', name: '爱康国宾免费体检', tags: ['买赠', '下单转化'], desc: '购买后可获得体检权益', icon: '🏥', category: 'rights' },
+          { key: 'ANALYSIS_LIST', name: '分析列表页', tags: ['个性化数据', '曝光转化'], desc: '分析模块列表页，含会员引导入口运营位', icon: '📈', category: 'rights' },
         ];
 
         const pageSelectModal = reactive({
@@ -1060,6 +1065,12 @@
             const [path, query] = url.split('?');
             const parts = path.replace(/^\//, '').replace(/\/$/, '').split('/');
             window.location.href = parts.join('-') + '.html' + (query ? '?' + query : '');
+          } else if (location.protocol === 'file:') {
+            const [path, query] = url.split('?');
+            const parts = path.replace(/^\//, '').replace(/\/$/, '').split('/');
+            const filename = parts.join('-') + '.html';
+            const base = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
+            window.location.href = base + '/' + filename + (query ? '?' + query : '');
           } else {
             window.location.href = url;
           }
