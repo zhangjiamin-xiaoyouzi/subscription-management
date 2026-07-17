@@ -135,13 +135,13 @@ const UserConditionsTemplate = `
               </div>
             </div>
             <div class="value-area">
-              <div v-if="cond.field && callGetter(isMultiValueField, cond.field, false)" class="multi-select-tags" :class="{ open: cond.valueOpen }" @click="cond.valueOpen = !cond.valueOpen">
+              <div v-if="cond.field && callGetter(isMultiValueField, cond.field, false)" class="multi-select-tags" :class="{ open: cond.valueOpen }" @click.stop="cond.valueOpen = !cond.valueOpen">
                 <span v-for="(v, vi) in cond.valueArr" :key="vi" class="tag-item">
                   {{ v }}
                   <span class="tag-close" @click.stop="handleRemoveMultiValue(cond, vi)">✕</span>
                 </span>
                 <input class="search-input" :placeholder="cond.valueArr.length === 0 ? '请选择' : ''"
-                       v-model="cond.searchText" @keydown.enter.prevent="handleAddMultiValue(cond)" />
+                       v-model="cond.searchText" @keydown.enter.prevent="handleAddMultiValue(cond)" @click.stop />
                 <div class="select-dropdown" v-show="cond.valueOpen" v-click-outside="() => cond.valueOpen = false">
                   <div class="select-option"
                        v-for="vo in callGetter(getValueOptionsForField, cond.field, [])" :key="vo"
