@@ -2525,6 +2525,8 @@
         valueOptions: ['是', '否'] },
       { value: 'latest_package', label: '最新订单的套餐类型', type: 'multi', operators: ['include', 'exclude'],
         valueOptions: ['月度会员', '季度会员', '年度会员', '学生会员', '连续包月'] },
+      { value: 'current_order_status', label: '当前会员订单状态', type: 'multi', operators: ['include', 'exclude'],
+        valueOptions: ['正式会员', '试用会员'] },
     ];
 
     const OPERATOR_LABELS = {
