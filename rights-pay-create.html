@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -268,6 +268,32 @@
     .record-banner-label.required::before {
       content: '* '; color: #ff4d4f;
     }
+    .help-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: #e8e8e8; color: #999; font-size: 11px; font-weight: bold;
+      cursor: help; margin-left: 4px; position: relative; vertical-align: middle;
+      flex-shrink: 0;
+    }
+    .help-icon:hover {
+      background: #1677ff; color: #fff;
+    }
+    .help-icon:hover::after {
+      content: attr(data-tip);
+      position: absolute; left: 50%; bottom: calc(100% + 8px);
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.82); color: #fff;
+      font-size: 12px; font-weight: normal; line-height: 1.7;
+      padding: 10px 14px; border-radius: 6px;
+      white-space: pre-line;
+      min-width: 240px; max-width: 420px; width: max-content;
+      z-index: 9999; pointer-events: none;
+      text-align: left; word-break: break-all;
+    }
+    .record-banner-field.full .help-icon:hover::after {
+      /* 让 tooltip 在 full-width 行中不会溢出 */
+      left: 0; transform: none;
+    }
     .record-banner-control {
       flex: 1; min-width: 0;
     }
@@ -286,6 +312,9 @@
       box-shadow: none;
     }
     .record-banner-select.is-disabled .select-trigger {
+      background: #f5f5f5; color: rgba(0,0,0,.45); cursor: not-allowed;
+    }
+    .record-banner-select .select-trigger.disabled {
       background: #f5f5f5; color: rgba(0,0,0,.45); cursor: not-allowed;
     }
     .record-banner-select .select-dropdown {
@@ -1075,10 +1104,10 @@
           <span class="logo-text" v-show="!siderCollapsed">导航菜单</span>
         </div>
         <div class="sider-menu">
-          <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">📋</span><span class="menu-label" v-show="!siderCollapsed">订单管理</span></a>
-          <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">👥</span><span class="menu-label" v-show="!siderCollapsed">用户管理</span></a>
-          <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">🖼️</span><span class="menu-label" v-show="!siderCollapsed">素材管理</span></a>
-          <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">🔗</span><span class="menu-label" v-show="!siderCollapsed">拼团管理</span></a>
+          <a class="sider-menu-item" href="javascript:;" @click.stop="showToast('该功能开发中')"><span class="menu-icon">📋</span><span class="menu-label" v-show="!siderCollapsed">订单管理</span></a>
+          <a class="sider-menu-item" href="javascript:;" @click.stop="showToast('该功能开发中')"><span class="menu-icon">👥</span><span class="menu-label" v-show="!siderCollapsed">用户管理</span></a>
+          <a class="sider-menu-item" href="javascript:;" @click.stop="showToast('该功能开发中')"><span class="menu-icon">🖼️</span><span class="menu-label" v-show="!siderCollapsed">素材管理</span></a>
+          <a class="sider-menu-item" href="javascript:;" @click.stop="showToast('该功能开发中')"><span class="menu-icon">🔗</span><span class="menu-label" v-show="!siderCollapsed">拼团管理</span></a>
           <div class="sider-menu-item parent-open" :class="{ active: activeParents.includes('opTools') }" @click="opToolsOpen = !opToolsOpen">
             <span class="menu-icon">🔧</span>
             <span class="menu-label" v-show="!siderCollapsed">运营工具</span>
@@ -1086,10 +1115,10 @@
           </div>
           <div class="sider-submenu" @click.stop :style="{ maxHeight: opToolsOpen && !siderCollapsed ? subMenuMaxHeight : '0' }">
             <a class="sider-menu-item" href="/popup-list.html">弹窗</a>
-            <a class="sider-menu-item" href="javascript:;">兑换码</a>
+            <a class="sider-menu-item" href="javascript:;" @click.stop="showToast('该功能开发中')">兑换码</a>
             <a class="sider-menu-item" href="javascript:void(0)" @click.stop="navigateTo('/gift-strategy/list')">赠礼发放策略</a>
             <a class="sider-menu-item" href="javascript:void(0)" @click.stop="navigateTo('/promotion-strategy/list')">限时促销策略</a>
-            <a class="sider-menu-item" href="javascript:;">赠礼物流管理</a>
+            <a class="sider-menu-item" href="javascript:;" @click.stop="showToast('该功能开发中')">赠礼物流管理</a>
             <a class="sider-menu-item" href="javascript:void(0)" @click.stop="navigateTo('/event-pricing-strategy/list')">活动价格策略</a>
             <a class="sider-menu-item" href="javascript:void(0)" @click.stop="navigateTo('/event-operations-strategy/list')">活动投放策略</a>
           </div>
@@ -1100,7 +1129,7 @@
           </div>
           <div class="sider-submenu" @click.stop :style="{ maxHeight: deployOpen && !siderCollapsed ? '110px' : '0' }">
             <a class="sider-menu-item active" href="javascript:void(0)" @click.stop="navigateTo('/rights-pay/list')">投放策略</a>
-            <a class="sider-menu-item" href="javascript:;">页面模块展示</a>
+            <a class="sider-menu-item" href="javascript:;" @click.stop="showToast('该功能开发中')">页面模块展示</a>
           </div>
           <div class="sider-menu-item parent-open" :class="{ active: activeParents.includes('price') }" @click="priceManageOpen = !priceManageOpen">
             <span class="menu-icon">💰</span>
@@ -1108,11 +1137,11 @@
             <span class="menu-arrow" :class="{ open: priceManageOpen }" v-show="!siderCollapsed">▶</span>
           </div>
           <div class="sider-submenu" @click.stop :style="{ maxHeight: priceManageOpen && !siderCollapsed ? subMenuMaxHeight : '0' }">
-            <a class="sider-menu-item" href="javascript:;">价格套餐</a>
+            <a class="sider-menu-item" href="javascript:;" @click.stop="showToast('该功能开发中')">价格套餐</a>
             <a class="sider-menu-item" href="javascript:void(0)" @click.stop="navigateTo('/price-strategy/list')">价格策略</a>
             <a class="sider-menu-item" href="javascript:void(0)" @click.stop="navigateTo('/promotion-strategy/list')">促销套餐</a>
           </div>
-          <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">📦</span><span class="menu-label" v-show="!siderCollapsed">产品管理</span></a>
+          <a class="sider-menu-item" href="javascript:;" @click.stop="showToast('该功能开发中')"><span class="menu-icon">📦</span><span class="menu-label" v-show="!siderCollapsed">产品管理</span></a>
           <div class="sider-menu-item parent-open" @click="lotteryManageOpen = !lotteryManageOpen">
             <span class="menu-icon">🎯</span>
             <span class="menu-label" v-show="!siderCollapsed">抽奖管理</span>
@@ -1122,12 +1151,12 @@
             <a class="sider-menu-item" href="javascript:void(0)" @click.stop="navigateTo('/prize/list')"><span class="menu-label">奖品管理</span></a>
             <a class="sider-menu-item" href="javascript:void(0)" @click.stop="navigateTo('/coupon/list')"><span class="menu-label">抽奖券管理</span></a>
           </div>
-          <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">🏆</span><span class="menu-label" v-show="!siderCollapsed">中奖管理</span></a>
-          <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">📜</span><span class="menu-label" v-show="!siderCollapsed">订阅管理</span></a>
-          <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">📁</span><span class="menu-label" v-show="!siderCollapsed">素材库</span></a>
-          <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">⚙️</span><span class="menu-label" v-show="!siderCollapsed">设置管理</span></a>
-          <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">🏪</span><span class="menu-label" v-show="!siderCollapsed">第三方商户管理</span></a>
-          <a class="sider-menu-item" href="javascript:;"><span class="menu-icon">📚</span><span class="menu-label" v-show="!siderCollapsed">知识库</span></a>
+          <a class="sider-menu-item" href="javascript:;" @click.stop="showToast('该功能开发中')"><span class="menu-icon">🏆</span><span class="menu-label" v-show="!siderCollapsed">中奖管理</span></a>
+          <a class="sider-menu-item" href="javascript:;" @click.stop="showToast('该功能开发中')"><span class="menu-icon">📜</span><span class="menu-label" v-show="!siderCollapsed">订阅管理</span></a>
+          <a class="sider-menu-item" href="javascript:;" @click.stop="showToast('该功能开发中')"><span class="menu-icon">📁</span><span class="menu-label" v-show="!siderCollapsed">素材库</span></a>
+          <a class="sider-menu-item" href="javascript:;" @click.stop="showToast('该功能开发中')"><span class="menu-icon">⚙️</span><span class="menu-label" v-show="!siderCollapsed">设置管理</span></a>
+          <a class="sider-menu-item" href="javascript:;" @click.stop="showToast('该功能开发中')"><span class="menu-icon">🏪</span><span class="menu-label" v-show="!siderCollapsed">第三方商户管理</span></a>
+          <a class="sider-menu-item" href="javascript:;" @click.stop="showToast('该功能开发中')"><span class="menu-icon">📚</span><span class="menu-label" v-show="!siderCollapsed">知识库</span></a>
         </div>
       </aside>
 
@@ -1445,10 +1474,10 @@
                   </div>
 
                   <div class="record-banner-field full">
-                    <div class="record-banner-label">分析结果(9.09.0及以上版本配置):</div>
+                    <div class="record-banner-label">分析结果-V5版 (9.10.0及以上版本配置):<span class="help-icon" data-tip="1、经期健康度V5版标签（本周期、上周期、近3个周期对比），910及以上版本生效；&#10;2、同一个记录里V5版标签与V4互斥，只可配置其中一类标签">?</span></div>
                     <div class="record-banner-control" :class="{ disabled: !isPeriodReportPath && !recordBannerForm.recordItem }">
                       <div class="record-banner-select record-banner-multi-select" :class="{ 'is-disabled': !isPeriodReportPath && !recordBannerForm.recordItem }" v-click-outside="() => closeRecordBannerSelect('analysisResultLatest')">
-                        <div class="multi-select-tags" :class="{ open: recordBannerForm.analysisResultLatestOpen, disabled: !isPeriodReportPath && !recordBannerForm.recordItem }" @click="toggleRecordBannerSelect('analysisResultLatest', !isPeriodReportPath && !recordBannerForm.recordItem)">
+                        <div class="multi-select-tags" :class="{ open: recordBannerForm.analysisResultLatestOpen, disabled: (!isPeriodReportPath && !recordBannerForm.recordItem) || recordBannerForm.analysisResultNew.length > 0 || recordBannerForm.analysisResultOld.length > 0 || recordBannerForm.analysisResultBelow909.length > 0 }" @click="toggleRecordBannerSelect('analysisResultLatest', (!isPeriodReportPath && !recordBannerForm.recordItem) || recordBannerForm.analysisResultNew.length > 0 || recordBannerForm.analysisResultOld.length > 0 || recordBannerForm.analysisResultBelow909.length > 0)">
                           <span class="tag-item" v-for="(item, idx) in recordBannerForm.analysisResultLatest" :key="item">
                             {{ item }}
                             <span class="tag-close" @click.stop="removeLatestTag(idx)">×</span>
@@ -1468,21 +1497,23 @@
                           <div v-if="filteredRecordBannerAnalysisOptionsLatest.length === 0" class="select-option-empty">暂无匹配结果</div>
                         </div>
                       </div>
-                      <div class="record-banner-tip">9.09.0及以上版本专用分析结果选择，支持多选</div>
                     </div>
                   </div>
 
                   <div class="record-banner-field full" v-if="!isPeriodReportPath">
-                    <div class="record-banner-label">分析结果(8.97.0及以上版本配置):</div>
+                    <div class="record-banner-label">分析结果-V4版(8.97.0及以上版本配置):<span class="help-icon" data-tip="1、经期健康度V4版标签(近半年)，8.97.0及以上版本生效；&#10;2、经期健康度V4版标签（本周期），8.97.0~仅9.09.0版本生效；&#10;3、同一个记录里V5版标签与V4互斥，只可配置其中一类标签">?</span></div>
                     <div class="record-banner-control" :class="{ disabled: !recordBannerForm.recordItem }">
-                      <div class="record-banner-select" :class="{ 'is-disabled': !recordBannerForm.recordItem }" v-click-outside="() => closeRecordBannerSelect('analysisResultNew')">
-                        <div class="select-trigger" :class="{ open: recordBannerForm.analysisResultNewOpen }" @click="toggleRecordBannerSelect('analysisResultNew', !recordBannerForm.recordItem)">
-                          <span :class="{ placeholder: !recordBannerForm.analysisResultNew }">{{ recordBannerForm.analysisResultNew || '请选择' }}</span>
+                      <div class="record-banner-select record-banner-multi-select" :class="{ 'is-disabled': !recordBannerForm.recordItem }" v-click-outside="() => closeRecordBannerSelect('analysisResultNew')">
+                        <div class="multi-select-tags" :class="{ open: recordBannerForm.analysisResultNewOpen, disabled: !recordBannerForm.recordItem || recordBannerForm.analysisResultLatest.length > 0 || recordBannerForm.analysisResultOld.length > 0 }" @click="toggleRecordBannerSelect('analysisResultNew', !recordBannerForm.recordItem || recordBannerForm.analysisResultLatest.length > 0 || recordBannerForm.analysisResultOld.length > 0)">
+                          <span class="tag-item" v-for="(item, idx) in recordBannerForm.analysisResultNew" :key="item">
+                            {{ item }}
+                            <span class="tag-close" @click.stop="removeNewTag(idx)">×</span>
+                          </span>
+                          <span v-if="recordBannerForm.analysisResultNew.length === 0" class="placeholder-text">请选择</span>
                         </div>
                         <span class="select-arrow">▾</span>
                         <div class="select-dropdown" v-show="recordBannerForm.analysisResultNewOpen && recordBannerForm.recordItem">
-                          <div class="select-option" :class="{ selected: recordBannerForm.analysisResultNew === '' }" @click.stop="updateRecordBannerField('analysisResultNew', '')">请选择</div>
-                          <div class="select-option" v-for="item in recordBannerAnalysisOptionsNew" :key="item" :class="{ selected: recordBannerForm.analysisResultNew === item }" @click.stop="updateRecordBannerField('analysisResultNew', item)">{{ item }}</div>
+                          <div class="select-option" v-for="item in recordBannerAnalysisOptionsNew" :key="item" :class="{ selected: recordBannerForm.analysisResultNew.includes(item) }" @click.stop="toggleNewOption(item)">{{ item }}</div>
                         </div>
                       </div>
                       <div class="record-banner-tip">高版本（版本号大于等于8.97.0版本分析结果选择）</div>
@@ -1492,14 +1523,17 @@
                   <div class="record-banner-field full" v-if="!isPeriodReportPath">
                     <div class="record-banner-label">分析结果(8.93.0~8.96.0版本配置):</div>
                     <div class="record-banner-control" :class="{ disabled: !recordBannerForm.recordItem }">
-                      <div class="record-banner-select" :class="{ 'is-disabled': !recordBannerForm.recordItem }" v-click-outside="() => closeRecordBannerSelect('analysisResultOld')">
-                        <div class="select-trigger" :class="{ open: recordBannerForm.analysisResultOldOpen }" @click="toggleRecordBannerSelect('analysisResultOld', !recordBannerForm.recordItem)">
-                          <span :class="{ placeholder: !recordBannerForm.analysisResultOld }">{{ recordBannerForm.analysisResultOld || '请选择' }}</span>
+                      <div class="record-banner-select record-banner-multi-select" :class="{ 'is-disabled': !recordBannerForm.recordItem }" v-click-outside="() => closeRecordBannerSelect('analysisResultOld')">
+                        <div class="multi-select-tags" :class="{ open: recordBannerForm.analysisResultOldOpen, disabled: !recordBannerForm.recordItem || recordBannerForm.analysisResultLatest.length > 0 || recordBannerForm.analysisResultNew.length > 0 }" @click="toggleRecordBannerSelect('analysisResultOld', !recordBannerForm.recordItem || recordBannerForm.analysisResultLatest.length > 0 || recordBannerForm.analysisResultNew.length > 0)">
+                          <span class="tag-item" v-for="(item, idx) in recordBannerForm.analysisResultOld" :key="item">
+                            {{ item }}
+                            <span class="tag-close" @click.stop="removeOldTag(idx)">×</span>
+                          </span>
+                          <span v-if="recordBannerForm.analysisResultOld.length === 0" class="placeholder-text">请选择</span>
                         </div>
                         <span class="select-arrow">▾</span>
                         <div class="select-dropdown" v-show="recordBannerForm.analysisResultOldOpen && recordBannerForm.recordItem">
-                          <div class="select-option" :class="{ selected: recordBannerForm.analysisResultOld === '' }" @click.stop="updateRecordBannerField('analysisResultOld', '')">请选择</div>
-                          <div class="select-option" v-for="item in recordBannerAnalysisOptionsOld" :key="item" :class="{ selected: recordBannerForm.analysisResultOld === item }" @click.stop="updateRecordBannerField('analysisResultOld', item)">{{ item }}</div>
+                          <div class="select-option" v-for="item in recordBannerAnalysisOptionsOld" :key="item" :class="{ selected: recordBannerForm.analysisResultOld.includes(item) }" @click.stop="toggleOldOption(item)">{{ item }}</div>
                         </div>
                       </div>
                       <div class="record-banner-tip">兼容8.93.0~8.96.0版本配置，若策略对8.97.0及以上版本生效，此项可以不配置</div>
@@ -1508,19 +1542,22 @@
                   </div>
 
                   <div class="record-banner-field full" v-if="isPeriodReportPath">
-                    <div class="record-banner-label">分析结果(9.09.0以下版本配置):</div>
-                    <div class="record-banner-control">
-                      <div class="record-banner-select" v-click-outside="() => closeRecordBannerSelect('analysisResultBelow909')">
-                        <div class="select-trigger" :class="{ open: recordBannerForm.analysisResultBelow909Open }" @click="toggleRecordBannerSelect('analysisResultBelow909')">
-                          <span :class="{ placeholder: !recordBannerForm.analysisResultBelow909 }">{{ recordBannerForm.analysisResultBelow909 || '请选择' }}</span>
+                    <div class="record-banner-label">分析结果-V4版:<span class="help-icon" data-tip="1、经期健康度V4版标签(近半年)，不限版本；&#10;2、经期健康度V4版标签（本周期），9.09.0及以下版本生效；&#10;3、同一个记录里V5版标签与V4互斥，只可配置其中一类标签">?</span></div>
+                    <div class="record-banner-control" :class="{ disabled: recordBannerForm.analysisResultLatest.length > 0 }">
+                      <div class="record-banner-select record-banner-multi-select" :class="{ 'is-disabled': recordBannerForm.analysisResultLatest.length > 0 }" v-click-outside="() => closeRecordBannerSelect('analysisResultBelow909')">
+                        <div class="multi-select-tags" :class="{ open: recordBannerForm.analysisResultBelow909Open, disabled: recordBannerForm.analysisResultLatest.length > 0 }" @click="toggleRecordBannerSelect('analysisResultBelow909', recordBannerForm.analysisResultLatest.length > 0)">
+                          <span class="tag-item" v-for="(item, idx) in recordBannerForm.analysisResultBelow909" :key="item">
+                            {{ item }}
+                            <span class="tag-close" @click.stop="removeBelow909Tag(idx)">×</span>
+                          </span>
+                          <span v-if="recordBannerForm.analysisResultBelow909.length === 0" class="placeholder-text">请选择</span>
                         </div>
                         <span class="select-arrow">▾</span>
-                        <div class="select-dropdown" v-show="recordBannerForm.analysisResultBelow909Open">
-                          <div class="select-option" :class="{ selected: recordBannerForm.analysisResultBelow909 === '' }" @click.stop="updateRecordBannerField('analysisResultBelow909', '')">请选择</div>
-                          <div class="select-option" v-for="item in recordBannerAnalysisOptionsBelow909" :key="item" :class="{ selected: recordBannerForm.analysisResultBelow909 === item }" @click.stop="updateRecordBannerField('analysisResultBelow909', item)">{{ item }}</div>
+                        <div class="select-dropdown" v-show="recordBannerForm.analysisResultBelow909Open && recordBannerForm.analysisResultLatest.length === 0">
+                          <div class="select-option" v-for="item in recordBannerAnalysisOptionsBelow909" :key="item" :class="{ selected: recordBannerForm.analysisResultBelow909.includes(item) }" @click.stop="toggleBelow909Option(item)">{{ item }}</div>
                         </div>
                       </div>
-                      <div class="record-banner-tip">9.09.0以下版本分析结果选择</div>
+                      <div class="record-banner-tip">9.09.0及以下版本分析结果选择</div>
                     </div>
                   </div>
 
@@ -1649,7 +1686,7 @@
               <div class="record-banner-directory">
                 <div class="directory-header">
                   <span class="directory-title">投放内容目录</span>
-                  <button class="btn-dir-add" type="button" @click="addContentGroup">＋ 添加组</button>
+                  <button class="btn-dir-add" type="button" @click="addContentGroup">＋ 新增记录</button>
                 </div>
                 <div class="directory-list">
                   <div
@@ -1660,7 +1697,7 @@
                     @click="selectContentGroup(gi)"
                   >
                     <div class="directory-item-header">
-                      <span class="directory-item-num">第{{ gi + 1 }}组</span>
+                      <span class="directory-item-num">记录{{ gi + 1 }}</span>
                       <span class="directory-item-badge" v-if="gi === activeContentGroupIndex">当前编辑</span>
                       <div class="directory-item-actions" @click.stop>
                         <button class="btn-dir-action" type="button" title="复制" @click="copyContentGroup(gi)">📋</button>
@@ -1671,8 +1708,9 @@
                       <div class="dir-info"><span class="dir-label">类型</span><span class="dir-value">{{ group.typeMode === 'period' ? '时期' : '月经第x天' }}</span></div>
                       <div class="dir-info" v-if="group.typeMode === 'period'"><span class="dir-label">时期</span><span class="dir-value">{{ group.period || '未设置' }}</span></div>
                       <div class="dir-info"><span class="dir-label">记录项</span><span class="dir-value">{{ group.recordItem || '未设置' }}</span></div>
-                      <div class="dir-info"><span class="dir-label">9.09.0+</span><span class="dir-value">{{ group.analysisResultLatest.length }}项</span></div>
-                      <div class="dir-info"><span class="dir-label">8.97.0+</span><span class="dir-value">{{ group.analysisResultNew ? '1项' : '0项' }}</span></div>
+                      <div class="dir-info"><span class="dir-label">9.10.0+</span><span class="dir-value">{{ group.analysisResultLatest.length }}项</span></div>
+                      <div class="dir-info"><span class="dir-label">8.97.0+</span><span class="dir-value">{{ group.analysisResultNew.length }}项</span></div>
+                      <div class="dir-info"><span class="dir-label">8.93.0+</span><span class="dir-value">{{ group.analysisResultOld.length }}项</span></div>
                       <div class="dir-info"><span class="dir-label">素材</span><span class="dir-value">{{ getConfiguredMaterialCount(group) }}</span></div>
                     </div>
                   </div>
@@ -1762,7 +1800,7 @@
                     @click="selectMyTabGroup(gi)"
                   >
                     <div class="directory-item-header">
-                      <span class="directory-item-num">{{ gi === 0 ? '默认组' : '第' + gi + '组' }}</span>
+                      <span class="directory-item-num">{{ gi === 0 ? '默认组' : '记录' + gi }}</span>
                       <span class="directory-item-badge" v-if="gi === myTabMemberCardForm.activeContentGroupIndex">当前编辑</span>
                       <div class="directory-item-actions" @click.stop>
                         <button class="btn-dir-action" type="button" title="复制" @click="copyMyTabGroup(gi)" v-if="gi > 0">📋</button>
@@ -1847,12 +1885,12 @@
                     </div>
                   </div>
 
-                  <!-- 分析结果(9.09.0及以上版本配置) - 仅经期身份显示 -->
+                  <!-- 分析结果-V5版 (9.10.0及以上版本配置) - 仅经期身份显示 -->
                   <div class="record-banner-field full" v-if="analysisVipGuideForm.identityMode === '经期'">
                     <div class="record-banner-label">
                       <button class="req-anno-btn" onclick="toggleReqAnno(this)">需求说明</button>
-                      分析结果(9.09.0及以上版本配置):
-                      <div class="req-anno-box">【分析结果(9.09.0及以上版本配置)】
+                      分析结果-V5版 (9.10.0及以上版本配置):
+                      <div class="req-anno-box">【分析结果-V5版 (9.10.0及以上版本配置)】
 1. 显示条件：仅当"选择横幅展示的身份"选择"经期"时显示此字段
 2. 联动规则：根据"分析模块"的选择动态显示对应的分析结果选项
    - 周期变化：周期变长、周期变短、周期不规律
@@ -1865,8 +1903,8 @@
 5. 搜索功能：支持在下拉框中搜索分析结果</div>
                     </div>
                     <div class="record-banner-control">
-                      <div class="record-banner-select record-banner-multi-select" :class="{ 'is-disabled': !analysisVipGuideForm.analysisModule }" v-click-outside="() => analysisVipGuideForm.analysisResultLatestOpen = false">
-                        <div class="multi-select-tags" :class="{ open: analysisVipGuideForm.analysisResultLatestOpen, disabled: !analysisVipGuideForm.analysisModule }" @click="analysisVipGuideForm.analysisResultLatestOpen = !analysisVipGuideForm.analysisResultLatestOpen">
+                      <div class="record-banner-select record-banner-multi-select" v-click-outside="() => analysisVipGuideForm.analysisResultLatestOpen = false">
+                        <div class="multi-select-tags" :class="{ open: analysisVipGuideForm.analysisResultLatestOpen, disabled: analysisVipGuideForm.analysisResultMulti.length > 0 || analysisVipGuideForm.analysisResultSingle }" @click="analysisVipGuideForm.analysisResultMulti.length === 0 && !analysisVipGuideForm.analysisResultSingle &amp;&amp; (analysisVipGuideForm.analysisResultLatestOpen = !analysisVipGuideForm.analysisResultLatestOpen)">
                           <span class="tag-item" v-for="(item, idx) in analysisVipGuideForm.analysisResultLatest" :key="item">
                             {{ item }}
                             <span class="tag-close" @click.stop="toggleAnalysisLatestOption(item)">×</span>
@@ -1874,7 +1912,7 @@
                           <span v-if="analysisVipGuideForm.analysisResultLatest.length === 0" class="placeholder-text">请选择</span>
                         </div>
                         <span class="select-arrow">▾</span>
-                        <div class="select-dropdown select-dropdown-grouped" v-show="analysisVipGuideForm.analysisResultLatestOpen && analysisVipGuideForm.analysisModule">
+                        <div class="select-dropdown select-dropdown-grouped" v-show="analysisVipGuideForm.analysisResultLatestOpen">
                           <div class="select-search-box" @click.stop>
                             <input class="select-search-input" v-model="analysisVipGuideForm.analysisResultLatestSearch" placeholder="搜索分析结果..." />
                             <span v-if="analysisVipGuideForm.analysisResultLatestSearch" class="search-clear" @click.stop="analysisVipGuideForm.analysisResultLatestSearch = ''">×</span>
@@ -1890,10 +1928,10 @@
                   </div>
 
                   <div class="record-banner-field full">
-                    <div class="record-banner-label">分析结果(多选):</div>
+                    <div class="record-banner-label">分析结果-V4版（多选）:<span class="help-icon" data-tip="1、经期健康度V4版标签(近半年)，9.00.0及以上版本生效；&#10;2、经期健康度V4版标签（本周期），9.00.0~9.09.0版本生效；&#10;3、同一个记录里V5版标签与V4互斥，只可配置其中一类标签">?</span></div>
                     <div class="record-banner-control">
-                      <div class="record-banner-select record-banner-multi-select" v-click-outside="() => analysisVipGuideForm.analysisResultMultiOpen = false">
-                        <div class="multi-select-tags" :class="{ open: analysisVipGuideForm.analysisResultMultiOpen }" @click="analysisVipGuideForm.analysisResultMultiOpen = !analysisVipGuideForm.analysisResultMultiOpen">
+                      <div class="record-banner-select record-banner-multi-select" :class="{ 'is-disabled': analysisVipGuideForm.analysisResultLatest.length > 0 }" v-click-outside="() => analysisVipGuideForm.analysisResultMultiOpen = false">
+                        <div class="multi-select-tags" :class="{ open: analysisVipGuideForm.analysisResultMultiOpen, disabled: analysisVipGuideForm.analysisResultLatest.length > 0 }" @click="analysisVipGuideForm.analysisResultLatest.length === 0 &amp;&amp; (analysisVipGuideForm.analysisResultMultiOpen = !analysisVipGuideForm.analysisResultMultiOpen)">
                           <span class="tag-item" v-for="(item, idx) in analysisVipGuideForm.analysisResultMulti" :key="item">
                             {{ item }}
                             <span class="tag-close" @click.stop="analysisVipGuideForm.analysisResultMulti.splice(idx, 1)">×</span>
@@ -1901,7 +1939,7 @@
                           <span v-if="analysisVipGuideForm.analysisResultMulti.length === 0" class="placeholder-text">请选择</span>
                         </div>
                         <span class="select-arrow">▾</span>
-                        <div class="select-dropdown" v-show="analysisVipGuideForm.analysisResultMultiOpen">
+                        <div class="select-dropdown" v-show="analysisVipGuideForm.analysisResultMultiOpen && analysisVipGuideForm.analysisResultLatest.length === 0">
                           <div class="select-search-box" @click.stop>
                             <input class="select-search-input" v-model="analysisVipGuideForm.analysisResultMultiSearch" placeholder="搜索分析结果..." />
                             <span v-if="analysisVipGuideForm.analysisResultMultiSearch" class="search-clear" @click.stop="analysisVipGuideForm.analysisResultMultiSearch = ''">×</span>
@@ -1910,24 +1948,24 @@
                           <div v-if="filteredAnalysisResultMultiOptions.length === 0" class="select-option-empty">暂无匹配结果</div>
                         </div>
                       </div>
-                      <div class="record-banner-tip">9.00.0及以上版本支持配置多项（与单选互斥）</div>
+                      <div class="record-banner-tip">9.00.0及以上版本支持配置多项（与V5互斥）</div>
                     </div>
                   </div>
 
                   <div class="record-banner-field full">
-                    <div class="record-banner-label">分析结果(单选):</div>
-                    <div class="record-banner-control">
-                      <div class="record-banner-select" v-click-outside="() => analysisVipGuideForm.analysisResultSingleOpen = false">
-                        <div class="select-trigger" :class="{ open: analysisVipGuideForm.analysisResultSingleOpen }" @click="analysisVipGuideForm.analysisResultSingleOpen = !analysisVipGuideForm.analysisResultSingleOpen">
+                    <div class="record-banner-label">分析结果-V4版（单选）:<span class="help-icon" data-tip="1、经期健康度V4版标签 (近半年)，不限版本；&#10;2、经期健康度V4版标签（本周期），9.09.0及以下版本生效；&#10;3、同一个记录里V5版标签与V4互斥，只可配置其中一类标签">?</span></div>
+                    <div class="record-banner-control" :class="{ disabled: analysisVipGuideForm.analysisResultLatest.length > 0 }">
+                      <div class="record-banner-select" :class="{ 'is-disabled': analysisVipGuideForm.analysisResultLatest.length > 0 }" v-click-outside="() => analysisVipGuideForm.analysisResultSingleOpen = false">
+                        <div class="select-trigger" :class="{ open: analysisVipGuideForm.analysisResultSingleOpen, disabled: analysisVipGuideForm.analysisResultLatest.length > 0 }" @click="analysisVipGuideForm.analysisResultLatest.length === 0 &amp;&amp; (analysisVipGuideForm.analysisResultSingleOpen = !analysisVipGuideForm.analysisResultSingleOpen)">
                           <span :class="{ placeholder: !analysisVipGuideForm.analysisResultSingle }">{{ analysisVipGuideForm.analysisResultSingle || '请选择' }}</span>
                         </div>
                         <span class="select-arrow">▾</span>
-                        <div class="select-dropdown" v-show="analysisVipGuideForm.analysisResultSingleOpen">
-                          <div class="select-option" :class="{ selected: analysisVipGuideForm.analysisResultSingle === '' }" @click.stop="analysisVipGuideForm.analysisResultSingle = ''; analysisVipGuideForm.analysisResultSingleOpen = false">请选择</div>
-                          <div class="select-option" v-for="item in analysisResultSingleOptions" :key="item" :class="{ selected: analysisVipGuideForm.analysisResultSingle === item }" @click.stop="analysisVipGuideForm.analysisResultSingle = item; analysisVipGuideForm.analysisResultSingleOpen = false">{{ item }}</div>
+                        <div class="select-dropdown" v-show="analysisVipGuideForm.analysisResultSingleOpen && analysisVipGuideForm.analysisResultLatest.length === 0">
+                          <div class="select-option" :class="{ selected: analysisVipGuideForm.analysisResultSingle === '' }" @click.stop="selectAnalysisResultSingle('')">请选择</div>
+                          <div class="select-option" v-for="item in analysisResultSingleOptions" :key="item" :class="{ selected: analysisVipGuideForm.analysisResultSingle === item }" @click.stop="selectAnalysisResultSingle(item)">{{ item }}</div>
                         </div>
                       </div>
-                      <div class="record-banner-tip">不限版本，单选（与多选互斥）</div>
+                      <div class="record-banner-tip">不限版本，单选（与V5互斥）</div>
                     </div>
                   </div>
                 </div>
@@ -2646,13 +2684,13 @@
             identityOpen: false,
             analysisModule: '', // 分析模块
             moduleOpen: false,
-            analysisResultLatest: [],    // 分析结果(9.09.0及以上版本配置)
+            analysisResultLatest: [],    // 分析结果-V5版 (9.10.0及以上版本配置)
             analysisResultLatestSearch: '',
             analysisResultLatestOpen: false,
-            analysisResultMulti: [],    // 分析结果(多选)
+            analysisResultMulti: [],    // 分析结果-V4版（多选）
             analysisResultMultiSearch: '',
             analysisResultMultiOpen: false,
-            analysisResultSingle: '',   // 分析结果(单选)
+            analysisResultSingle: '',   // 分析结果-V4版（单选）
             analysisResultSingleOpen: false,
             records: [
               {
@@ -2682,7 +2720,7 @@
               '1-大姨妈来了': {
                 newer: ['【101-1-2】本周期-周期偏长-异常', '【101-1-3】本周期-周期偏短-异常', '【101-1-1】本周期-周期正常', '【101-2-1】近半年-本次周期缩短-明显变化', '【101-2-3】近半年-本次周期延长-明显变化', '【101-2-4】近半年-周期连续缩短-明显变化', '【101-2-5】近半年-周期连续延长-明显变化', '【101-2-8】近半年-周期偏短偶发-异常', '【101-2-9】近半年-周期偏短频发-明显异常', '【101-2-10】近半年-周期偏长偶发-异常', '【101-2-11】近半年-周期偏长频发-明显异常', '【102-1-2】本周期-不规律-异常', '【102-2-2】近半年-不规律偶发-异常', '【102-2-3】近半年-不规律频发-明显异常'],
                 older: ['【2】本周期-周期偏长-异常', '【3】本周期-周期偏短-异常', '【1】本周期-周期正常'],
-                latest: ['【201-1-1】本周期-周期天数-正常', '【201-1-2】本周期-周期偏短-轻度偏离', '【201-1-3】本周期-周期偏长-轻度偏离', '【201-1-4】本周期-周期过短-异常', '【201-1-5】本周期-周期过长-异常', '【201-1-6】本周期-周期过短-严重异常', '【201-1-7】本周期-周期过长-严重异常', '【201-1-8】本周期-周期天数-数据不足', '【201-2-1】本周期-周期规律-正常', '【201-2-2】本周期-周期规律-轻度偏离', '【201-2-3】本周期-周期规律-中度偏离', '【201-2-4】本周期-周期不规律-异常', '【201-2-5】本周期-周期规律性-数据不足', '【202-1-1】上周期-周期天数-周期缩短', '【202-1-2】上周期-周期天数-周期稳定', '【202-1-3】上周期-周期天数-周期延长', '【203-1-1】近3个周期对比-周期天数-逐渐延长', '【203-1-2】近3个周期对比-周期天数-逐渐缩短', '【203-1-3】近3个周期对比-周期天数-忽长忽短', '【203-1-4】近3个周期对比-周期天数-周期稳定', '【203-1-5】近3个周期对比-周期天数-单次变化'],
+                latest: ['【201-1-1】本周期-周期天数-正常', '【201-1-2】本周期-周期偏短-轻度偏离', '【201-1-3】本周期-周期偏长-轻度偏离', '【201-1-4】本周期-周期过短-异常', '【201-1-5】本周期-周期过长-异常', '【201-1-6】本周期-周期过短-严重异常', '【201-1-7】本周期-周期过长-严重异常', '【201-1-8】本周期-周期天数-数据不足', '【202-2-1】上周期-周期规律-正常', '【202-2-2】上周期-周期规律-轻度偏离', '【202-2-3】上周期-周期规律-中度偏离', '【202-2-4】上周期-周期不规律-异常', '【202-2-5】上周期-周期规律性-数据不足', '【202-1-1】上周期-周期天数-正常', '【202-1-2】上周期-周期偏短-轻度偏离', '【202-1-3】上周期-周期偏长-轻度偏离', '【202-1-4】上周期-周期过短-异常', '【202-1-5】上周期-周期过长-异常', '【202-1-6】上周期-周期过短-严重异常', '【202-1-7】上周期-周期过长-严重异常', '【202-1-8】上周期-周期天数-数据不足', '【201-2-1】本周期-周期规律-正常', '【201-2-2】本周期-周期规律-轻度偏离', '【201-2-3】本周期-周期规律-中度偏离', '【201-2-4】本周期-周期不规律-异常', '【201-2-5】本周期-周期规律性-数据不足', '【203-1-1】近3个周期对比-周期天数-逐渐延长', '【203-1-2】近3个周期对比-周期天数-逐渐缩短', '【203-1-3】近3个周期对比-周期天数-忽长忽短', '【203-1-4】近3个周期对比-周期天数-周期稳定', '【203-1-5】近3个周期对比-周期天数-单次变化'],
                 subRecords: ['状态']
               },
               '100-大姨妈走了': {
@@ -2746,11 +2784,11 @@
               period: '',
               periodStages: [],
               recordItem: '',
-              analysisResultNew: '',
-              analysisResultOld: '',
+              analysisResultNew: [],
+              analysisResultOld: [],
               analysisResultLatest: [],
               analysisResultLatestSearch: '',
-              analysisResultBelow909: '',
+              analysisResultBelow909: [],
               subRecordItem: '',
               materialOptions: [
                 { id: 1, materialId: '', materialOpen: false, title: '', subtitle: '', bannerImage: '', jumpTarget: '', jumpTargetOpen: false }
@@ -2977,30 +3015,39 @@
           if (!search) return this.analysisResultBaseOptions;
           return this.analysisResultBaseOptions.filter(item => item.toLowerCase().includes(search));
         },
-        // 分析结果(9.09.0及以上版本配置) - 分组选项
+        // 分析结果-V5版 (9.10.0及以上版本配置) - 分组选项
         filteredAnalysisLatestOptions() {
-          const mod = this.analysisVipGuideForm.analysisModule;
-          if (!mod) return [];
           const search = (this.analysisVipGuideForm.analysisResultLatestSearch || '').trim().toLowerCase();
-          // 模块格式: "101-周期变化" → 提取 categoryId
-          const match = mod.match(/^(\d+)-(.+)$/);
-          if (!match) return [];
-          const categoryId = parseInt(match[1]);
-          const categoryName = match[2];
-          // 根据模块ID生成对应的分析结果选项
-          const optionsMap = {
-            101: { group: '周期变化', items: ['周期变长', '周期变短', '周期不规律'] },
-            103: { group: '经期变化', items: ['经期延长', '经期缩短'] },
-            104: { group: '流量变化', items: ['流量增多', '流量减少'] },
-            105: { group: '痛经情况', items: ['痛经加重', '痛经减轻', '无痛经'] },
-            106: { group: '症状分析', items: ['症状加重', '症状减轻', '无症状'] },
-          };
-          const optionData = optionsMap[categoryId] || { group: categoryName, items: [] };
-          let items = optionData.items;
-          if (search) {
-            items = items.filter(item => item.toLowerCase().includes(search));
-          }
-          return items.length > 0 ? [{ group: optionData.group, items }] : [];
+          const allGroups = [
+            { group: '本周期-周期天数', items: [
+              '本周期-周期天数-正常', '本周期-周期偏短-轻度偏离', '本周期-周期偏长-轻度偏离',
+              '本周期-周期过短-异常', '本周期-周期过长-异常', '本周期-周期过短-严重异常',
+              '本周期-周期过长-严重异常', '本周期-周期天数-数据不足'
+            ]},
+            { group: '上周期-周期规律', items: [
+              '上周期-周期规律-正常', '上周期-周期规律-轻度偏离', '上周期-周期规律-中度偏离',
+              '上周期-周期不规律-异常', '上周期-周期规律性-数据不足'
+            ]},
+            { group: '上周期-周期天数', items: [
+              '上周期-周期天数-正常', '上周期-周期偏短-轻度偏离', '上周期-周期偏长-轻度偏离',
+              '上周期-周期过短-异常', '上周期-周期过长-异常', '上周期-周期过短-严重异常',
+              '上周期-周期过长-严重异常', '上周期-周期天数-数据不足'
+            ]},
+            { group: '本周期-周期规律', items: [
+              '本周期-周期规律-正常', '本周期-周期规律-轻度偏离', '本周期-周期规律-中度偏离',
+              '本周期-周期不规律-异常', '本周期-周期规律性-数据不足'
+            ]},
+            { group: '近3个周期对比-周期天数', items: [
+              '近3个周期对比-周期天数-逐渐延长', '近3个周期对比-周期天数-逐渐缩短',
+              '近3个周期对比-周期天数-忽长忽短', '近3个周期对比-周期天数-周期稳定',
+              '近3个周期对比-周期天数-单次变化'
+            ]}
+          ];
+          if (!search) return allGroups;
+          return allGroups.map(g => ({
+            group: g.group,
+            items: g.items.filter(item => item.toLowerCase().includes(search))
+          })).filter(g => g.items.length > 0);
         },
         analysisResultSingleOptions() {
           return this.analysisResultBaseOptions;
@@ -3066,7 +3113,7 @@
         filteredRecordBannerAnalysisOptionsLatest() {
           const search = (this.recordBannerForm.analysisResultLatestSearch || '').trim().toLowerCase();
           const periodMap = { 201: '本周期', 202: '上周期', 203: '近3个周期对比' };
-          const categoryMap = { 1: '周期天数', 2: '周期规律性', 3: '经期天数', 4: '流量', 5: '痛经', 6: '经期症状', 7: '非经期症状' };
+          const categoryMap = { 1: '周期天数', 2: '周期规律', 3: '经期天数', 4: '流量', 5: '痛经', 6: '经期症状', 7: '非经期症状' };
           const groups = new Map();
           this.recordBannerAnalysisOptionsLatest.forEach(item => {
             if (search && !item.toLowerCase().includes(search)) return;
@@ -3118,7 +3165,7 @@
             if (this.recordBannerForm.subRecordItem) tags.push(this.recordBannerForm.subRecordItem);
           } else {
             if (this.recordBannerForm.recordItem) tags.push(this.recordBannerForm.recordItem);
-            if (this.recordBannerForm.analysisResultNew) tags.push(this.recordBannerForm.analysisResultNew);
+            if (this.recordBannerForm.analysisResultNew.length > 0) tags.push(this.recordBannerForm.analysisResultNew.join(', '));
           }
           return tags.join(' · ') || '记录横幅';
         },
@@ -3275,15 +3322,15 @@
           }
         },
         syncRecordBannerDependentOptions() {
-          if (!this.recordBannerAnalysisOptionsNew.includes(this.recordBannerForm.analysisResultNew)) {
-            this.recordBannerForm.analysisResultNew = '';
-          }
-          if (!this.recordBannerAnalysisOptionsOld.includes(this.recordBannerForm.analysisResultOld)) {
-            this.recordBannerForm.analysisResultOld = '';
-          }
-          if (!this.recordBannerAnalysisOptionsBelow909.includes(this.recordBannerForm.analysisResultBelow909)) {
-            this.recordBannerForm.analysisResultBelow909 = '';
-          }
+          this.recordBannerForm.analysisResultNew = this.recordBannerForm.analysisResultNew.filter(
+            item => this.recordBannerAnalysisOptionsNew.includes(item)
+          );
+          this.recordBannerForm.analysisResultOld = this.recordBannerForm.analysisResultOld.filter(
+            item => this.recordBannerAnalysisOptionsOld.includes(item)
+          );
+          this.recordBannerForm.analysisResultBelow909 = this.recordBannerForm.analysisResultBelow909.filter(
+            item => this.recordBannerAnalysisOptionsBelow909.includes(item)
+          );
           this.recordBannerForm.analysisResultLatest = this.recordBannerForm.analysisResultLatest.filter(
             item => this.recordBannerAnalysisOptionsLatest.includes(item)
           );
@@ -3301,8 +3348,8 @@
         addContentGroup() {
           const newGroup = {
             id: Math.max(0, ...this.recordBannerContentGroups.map(g => g.id)) + 1,
-            typeMode: 'period', period: '', periodStages: [], recordItem: '', analysisResultNew: '', analysisResultOld: '',
-            analysisResultLatest: [], analysisResultLatestSearch: '', analysisResultBelow909: '', subRecordItem: '',
+            typeMode: 'period', period: '', periodStages: [], recordItem: '', analysisResultNew: [], analysisResultOld: [],
+            analysisResultLatest: [], analysisResultLatestSearch: '', analysisResultBelow909: [], subRecordItem: '',
             materialOptions: [
               { id: 1, materialId: '', materialOpen: false, title: '', subtitle: '', bannerImage: '', jumpTarget: '', jumpTargetOpen: false }
             ],
@@ -3506,11 +3553,43 @@
           if (idx >= 0) {
             this.recordBannerForm.analysisResultLatest.splice(idx, 1);
           } else {
+            // 互斥：清空 8.97.0+、8.93.0~8.96.0 和 9.09.0以下
+            this.recordBannerForm.analysisResultNew.splice(0);
+            this.recordBannerForm.analysisResultOld.splice(0);
+            this.recordBannerForm.analysisResultBelow909.splice(0);
             this.recordBannerForm.analysisResultLatest.push(item);
           }
         },
         removeLatestTag(idx) {
           this.recordBannerForm.analysisResultLatest.splice(idx, 1);
+        },
+        toggleNewOption(item) {
+          const idx = this.recordBannerForm.analysisResultNew.indexOf(item);
+          if (idx >= 0) {
+            this.recordBannerForm.analysisResultNew.splice(idx, 1);
+          } else {
+            // 互斥：清空 9.10.0+ 和 8.93.0~8.96.0
+            this.recordBannerForm.analysisResultLatest.splice(0);
+            this.recordBannerForm.analysisResultOld.splice(0);
+            this.recordBannerForm.analysisResultNew.push(item);
+          }
+        },
+        removeNewTag(idx) {
+          this.recordBannerForm.analysisResultNew.splice(idx, 1);
+        },
+        toggleOldOption(item) {
+          const idx = this.recordBannerForm.analysisResultOld.indexOf(item);
+          if (idx >= 0) {
+            this.recordBannerForm.analysisResultOld.splice(idx, 1);
+          } else {
+            // 互斥：清空 9.10.0+ 和 8.97.0+
+            this.recordBannerForm.analysisResultLatest.splice(0);
+            this.recordBannerForm.analysisResultNew.splice(0);
+            this.recordBannerForm.analysisResultOld.push(item);
+          }
+        },
+        removeOldTag(idx) {
+          this.recordBannerForm.analysisResultOld.splice(idx, 1);
         },
         togglePeriodStageOption(item) {
           const idx = this.recordBannerForm.periodStages.indexOf(item);
@@ -3540,6 +3619,27 @@
           this.recordBannerForm[field] = value;
           this.closeRecordBannerSelect(field);
           if (typeof callback === 'function') callback();
+        },
+        selectAnalysisResultBelow909(value) {
+          // 互斥：选择 V4(9.09.0以下) 时清空 V5
+          this.recordBannerForm.analysisResultBelow909 = value;
+          if (value) {
+            this.recordBannerForm.analysisResultLatest.splice(0);
+          }
+          this.closeRecordBannerSelect('analysisResultBelow909');
+        },
+        toggleBelow909Option(item) {
+          const idx = this.recordBannerForm.analysisResultBelow909.indexOf(item);
+          if (idx >= 0) {
+            this.recordBannerForm.analysisResultBelow909.splice(idx, 1);
+          } else {
+            // 互斥：清空 V5
+            this.recordBannerForm.analysisResultLatest.splice(0);
+            this.recordBannerForm.analysisResultBelow909.push(item);
+          }
+        },
+        removeBelow909Tag(idx) {
+          this.recordBannerForm.analysisResultBelow909.splice(idx, 1);
         },
         selectRecordBannerMaterial(materialId) {
           if (!this.activeMaterialOption) return;
@@ -3599,6 +3699,13 @@
             const [path, query] = url.split('?');
             const parts = path.replace(/^\//, '').replace(/\/$/, '').split('/');
             window.location.href = parts.join('-') + '.html' + (query ? '?' + query : '');
+          } else if (location.protocol === 'file:') {
+            // 本地 file:// 协议：将路由映射到 recreated-page/ 下的 HTML 文件
+            const [path, query] = url.split('?');
+            const parts = path.replace(/^\//, '').replace(/\/$/, '').split('/');
+            const filename = parts.join('-') + '.html';
+            const base = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
+            window.location.href = base + '/' + filename + (query ? '?' + query : '');
           } else {
             window.location.href = url;
           }
@@ -3615,15 +3722,28 @@
           if (idx >= 0) {
             this.analysisVipGuideForm.analysisResultMulti.splice(idx, 1);
           } else {
+            // 互斥：清空 V5
+            this.analysisVipGuideForm.analysisResultLatest.splice(0);
             this.analysisVipGuideForm.analysisResultMulti.push(item);
           }
         },
-        // 分析结果(9.09.0及以上版本配置) - 切换选项
+        selectAnalysisResultSingle(value) {
+          // 互斥：选择 V4（单选）时清空 V5
+          this.analysisVipGuideForm.analysisResultSingle = value;
+          if (value) {
+            this.analysisVipGuideForm.analysisResultLatest.splice(0);
+          }
+          this.analysisVipGuideForm.analysisResultSingleOpen = false;
+        },
+        // 分析结果-V5版 (9.10.0及以上版本配置) - 切换选项
         toggleAnalysisLatestOption(item) {
           const idx = this.analysisVipGuideForm.analysisResultLatest.indexOf(item);
           if (idx >= 0) {
             this.analysisVipGuideForm.analysisResultLatest.splice(idx, 1);
           } else {
+            // 互斥：清空 V4（多选）和 V4（单选）
+            this.analysisVipGuideForm.analysisResultMulti.splice(0);
+            this.analysisVipGuideForm.analysisResultSingle = '';
             this.analysisVipGuideForm.analysisResultLatest.push(item);
           }
         },
