@@ -530,6 +530,26 @@
                       </div>
                     </template>
 
+                    <!-- 当前会员订单状态专用多选下拉 -->
+                    <template v-else-if="c.type === 'current_order_status'">
+                      <select class="cond-op" v-model="c.op">
+                        <option value="in">包含</option>
+                        <option value="nin">不包含</option>
+                      </select>
+                      <div class="multi-select-wrap">
+                        <div class="multi-select-trigger" :class="{ filled: c.orderStatuses.length > 0 }" @click="toggleOrderStatusDropdown(gi, ci)">
+                          <span style="overflow:hidden;text-overflow:ellipsis;">{{ getOrderStatusLabel(c) }}</span>
+                          <span class="ms-arrow" :class="{ open: isOrderStatusDropdownOpen(gi, ci) }">▾</span>
+                        </div>
+                        <div class="multi-select-dropdown" v-if="isOrderStatusDropdownOpen(gi, ci)" @mouseleave="closeOrderStatusDropdown(gi, ci)">
+                          <div class="multi-select-option" v-for="os in orderStatusOptions" :key="os.code" @click="toggleOrderStatus(gi, ci, os.code)">
+                            <input type="checkbox" :checked="c.orderStatuses.includes(os.code)" @click.stop />
+                            <span>{{ os.name }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+
                     <!-- 通用条件 -->
                     <template v-else>
                       <select class="cond-op" v-model="c.op">
@@ -973,6 +993,7 @@
     const CONDITION_META = [
       { code: 'user_vip_level', name: '用户VIP等级' },
       { code: 'user_membership_status', name: '会员状态' },
+      { code: 'current_order_status', name: '当前会员订单状态' },
       { code: 'user_register_days', name: '注册天数' },
       { code: 'user_gender', name: '用户性别' },
       { code: 'user_age', name: '用户年龄' },
@@ -987,6 +1008,11 @@
       { code: 'active', name: '会员生效中' },
       { code: 'expired', name: '已过期' },
       { code: 'trial', name: '会员试用中' },
+    ];
+
+    const ORDER_STATUS_OPTIONS = [
+      { code: 'formal', name: '正式会员' },
+      { code: 'trial', name: '试用会员' },
     ];
 
     const CONDITION_OPS = [
@@ -1013,7 +1039,7 @@
       { code: 'gift_010', name: '积分100点', alias: '【签到】积分100点' },
     ];
 
-    function makeCondition() { return { type: 'platform', op: 'in', val: '', membershipStatuses: [] }; }
+    function makeCondition() { return { type: 'platform', op: 'in', val: '', membershipStatuses: [], orderStatuses: [] }; }
     function makeConditionGroup() { return { conditions: [makeCondition()] }; }
     function makePromoGroup() {
       return {
@@ -1075,7 +1101,9 @@
         const conditionOps = CONDITION_OPS;
         const giftOptions = GIFT_OPTIONS;
         const membershipStatusOptions = MEMBERSHIP_STATUS_OPTIONS;
+        const orderStatusOptions = ORDER_STATUS_OPTIONS;
         const membershipDropdownOpen = reactive({});
+        const orderStatusDropdownOpen = reactive({});
 
         function getPlanName(code) {
           const p = PLAN_OPTIONS.find(x => x.code === code);
@@ -1117,6 +1145,33 @@
           if (!c.membershipStatuses || c.membershipStatuses.length === 0) return '请选择会员状态';
           return c.membershipStatuses.map(code => {
             const m = MEMBERSHIP_STATUS_OPTIONS.find(x => x.code === code);
+            return m ? m.name : code;
+          }).join('、');
+        }
+
+        function isOrderStatusDropdownOpen(gi, ci) {
+          return !!orderStatusDropdownOpen[gi + '_' + ci];
+        }
+        function toggleOrderStatusDropdown(gi, ci) {
+          const key = gi + '_' + ci;
+          orderStatusDropdownOpen[key] = !orderStatusDropdownOpen[key];
+        }
+        function closeOrderStatusDropdown(gi, ci) {
+          orderStatusDropdownOpen[gi + '_' + ci] = false;
+        }
+        function toggleOrderStatus(gi, ci, code) {
+          const c = form.conditionGroups[gi].conditions[ci];
+          const idx = c.orderStatuses.indexOf(code);
+          if (idx >= 0) {
+            c.orderStatuses.splice(idx, 1);
+          } else {
+            c.orderStatuses.push(code);
+          }
+        }
+        function getOrderStatusLabel(c) {
+          if (!c.orderStatuses || c.orderStatuses.length === 0) return '请选择订单状态';
+          return c.orderStatuses.map(code => {
+            const m = ORDER_STATUS_OPTIONS.find(x => x.code === code);
             return m ? m.name : code;
           }).join('、');
         }
@@ -1200,6 +1255,12 @@
             const [path, query] = url.split('?');
             const parts = path.replace(/^\//, '').replace(/\/$/, '').split('/');
             window.location.href = parts.join('-') + '.html' + (query ? '?' + query : '');
+          } else if (location.protocol === 'file:') {
+            const [path, query] = url.split('?');
+            const parts = path.replace(/^\//, '').replace(/\/$/, '').split('/');
+            const filename = parts.join('-') + '.html';
+            const base = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
+            window.location.href = base + '/' + filename + (query ? '?' + query : '');
           } else {
             window.location.href = url;
           }
@@ -1207,11 +1268,12 @@
 
         return {
           siderCollapsed, deployOpen, priceManageOpen, lotteryManageOpen, activeParents, form, planOpen, toast,
-          pageOptions, planOptions, planTypeOptions, conditionMeta, conditionOps, giftOptions, membershipStatusOptions,
+          pageOptions, planOptions, planTypeOptions, conditionMeta, conditionOps, giftOptions, membershipStatusOptions, orderStatusOptions,
           getPlanName, getPlanTypeName, getGiftName, getGiftAlias,
           selectGift, selectDetailPage, addDetailRow, removeDetailRow, openGiftLib,
           addConditionGroup, removeConditionGroup, addCondition, removeCondition,
           isMembershipDropdownOpen, toggleMembershipDropdown, closeMembershipDropdown, toggleMembershipStatus, getMembershipStatusLabel,
+          isOrderStatusDropdownOpen, toggleOrderStatusDropdown, closeOrderStatusDropdown, toggleOrderStatus, getOrderStatusLabel,
           addPromoGroup, removePromoGroup,
           refreshGift, previewGiftIcon,
           handleSave, goBack, navigateTo,
