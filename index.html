@@ -1004,6 +1004,12 @@
             const [path, query] = url.split('?');
             const parts = path.replace(/^\//, '').replace(/\/$/, '').split('/');
             window.location.href = parts.join('-') + '.html' + (query ? '?' + query : '');
+          } else if (location.protocol === 'file:') {
+            const [path, query] = url.split('?');
+            const parts = path.replace(/^\//, '').replace(/\/$/, '').split('/');
+            const filename = parts.join('-') + '.html';
+            const base = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
+            window.location.href = base + '/' + filename + (query ? '?' + query : '');
           } else {
             window.location.href = url;
           }

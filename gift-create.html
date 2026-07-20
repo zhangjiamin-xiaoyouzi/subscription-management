@@ -184,7 +184,18 @@
       background: #fff; cursor: pointer; transition: all .15s;
     }
     .add-col-btn:hover { background: #fff0f6; }
-    .ext-image-list { display: flex; gap: 12px; flex-wrap: wrap; }
+    .ext-image-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 8px 0;
+    }
+    .ext-image-item + .ext-image-item { border-top: 1px dashed #f0f0f0; }
+    .ext-image-item .material-select { width: 180px; }
+    .ext-image-item .delete-btn {
+      width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+      border: 1px solid #d9d9d9; border-radius: 4px; background: #fff; cursor: pointer;
+      color: #999; font-size: 14px; flex-shrink: 0; align-self: center;
+    }
+    .ext-image-item .delete-btn:hover { border-color: #ff4d4f; color: #ff4d4f; background: #fff2f0; }
 
     .info-tip {
       display: flex; align-items: flex-start; gap: 8px;
@@ -555,14 +566,27 @@ function toggleReqAnno(btn) {
               </div>
             </div>
             <div class="form-row">
-              <div class="form-label">扩展图片 :</div>
+              <div class="form-label" style="line-height:normal;padding-top:4px;">
+                <button class="req-anno-btn" onclick="toggleReqAnno(this)" style="display:block;margin-bottom:3px;">需求说明</button>
+                扩展图片 :
+                <div class="req-anno-box">【扩展图片】可选配置。用于适配不同场景（支付成功弹窗/会员中心横幅/赠礼模块横幅/会员卡图标/领取页商品大图）的配图。通过"素材标识"下拉选择场景后上传对应图片，并可点击"添加一列"新增多组配置。每行需选择一个素材标识并上传对应图片，同一素材标识不可重复配置。</div>
+              </div>
               <div class="form-control">
-                <div class="ext-image-list">
-                  <label class="upload-box" v-for="(img, idx) in formData.ext_images" :key="idx">
+                <div class="ext-image-item" v-for="(item, idx) in formData.ext_images" :key="idx">
+                  <select class="select-field material-select" v-model="item.material_tag">
+                    <option value="">* 素材标识 : 请选择</option>
+                    <option value="icon_pay_success">支付成功弹窗图标</option>
+                    <option value="banner_vip_center">会员中心横幅</option>
+                    <option value="banner_gift_module">赠礼模块横幅</option>
+                    <option value="icon_member_card">会员卡图标</option>
+                    <option value="image_product_claim">领取页商品大图</option>
+                  </select>
+                  <label class="upload-box">
                     <span class="plus-icon">+</span>
                     <span class="upload-text">上传图片</span>
                     <input type="file" accept="image/png,image/jpg,image/jpeg" @change="(e) => handleExtImageUpload(e, idx)" />
                   </label>
+                  <button class="delete-btn" @click="removeExtImage(idx)" v-if="formData.ext_images.length > 1">✕</button>
                 </div>
                 <button class="add-col-btn" @click="addExtImage" style="margin-top: 8px;">+ 添加一列</button>
               </div>
@@ -687,7 +711,7 @@ function toggleReqAnno(btn) {
           usage_notes: '',
           icon: null,
           icon_preview: '',
-          ext_images: [null],
+          ext_images: [{ material_tag: '', image: null, preview: '' }],
           member_876: null,
           member_877: null,
           success_popup: null,
@@ -702,7 +726,8 @@ function toggleReqAnno(btn) {
         function incrementValue() { formData.value++; }
         function decrementValue() { if (formData.value > 0) formData.value--; }
         function validateValue() { formData.value = Math.max(0, Number(formData.value) || 0); }
-        function addExtImage() { formData.ext_images.push(null); }
+        function addExtImage() { formData.ext_images.push({ material_tag: '', image: null, preview: '' }); }
+        function removeExtImage(idx) { formData.ext_images.splice(idx, 1); }
 
         function handleIconUpload(e) {
           const file = e.target.files[0];
@@ -717,7 +742,10 @@ function toggleReqAnno(btn) {
         function handleExtImageUpload(e, idx) {
           const file = e.target.files[0];
           if (file) {
-            formData.ext_images[idx] = file;
+            formData.ext_images[idx].image = file;
+            const reader = new FileReader();
+            reader.onload = (ev) => { formData.ext_images[idx].preview = ev.target.result; };
+            reader.readAsDataURL(file);
           }
         }
 
@@ -771,7 +799,7 @@ function toggleReqAnno(btn) {
             } else {
               const payload = { ...formData };
               delete payload.icon_preview;
-              delete payload.ext_images;
+              payload.ext_images = formData.ext_images.map(item => ({ material_tag: item.material_tag }));
               const isEdit = isCopy.value && formData.id;
               const res = isEdit
                 ? await apiPost(`/gift/${formData.id}/update`, payload)
@@ -804,6 +832,12 @@ function toggleReqAnno(btn) {
             const [path, query] = url.split('?');
             const parts = path.replace(/^\//, '').replace(/\/$/, '').split('/');
             window.location.href = parts.join('-') + '.html' + (query ? '?' + query : '');
+          } else if (location.protocol === 'file:') {
+            const [path, query] = url.split('?');
+            const parts = path.replace(/^\//, '').replace(/\/$/, '').split('/');
+            const filename = parts.join('-') + '.html';
+            const base = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
+            window.location.href = base + '/' + filename + (query ? '?' + query : '');
           } else {
             window.location.href = url;
           }
@@ -814,7 +848,7 @@ function toggleReqAnno(btn) {
           productManageOpen, lotteryManageOpen, activeParent, subMenuMaxHeight,
           formData, errors, modal, saving, isCopy,
           incrementValue, decrementValue, validateValue,
-          addExtImage,
+          addExtImage, removeExtImage,
           handleIconUpload, handleExtImageUpload,
           handleMember876Upload, handleMember877Upload, handleSuccessPopupUpload,
           handleSave, navigateTo, convertUrl,
