@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新建活动价格策略 - 活动价格策略</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+      background: #f5f5f5; color: #333; font-size: 14px;
+    }
+    #app { min-height: 100vh; display: flex; flex-direction: column; }
+    [v-cloak] { display: none !important; }
+
+    .app-header {
+      height: 48px; background: #fff; border-bottom: 1px solid #f0f0f0;
+      display: flex; align-items: center; justify-content: space-between; padding: 0 16px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.03); position: sticky; top: 0; z-index: 100;
+    }
+    .header-left { display: flex; align-items: center; gap: 4px; }
+    .menu-fold-btn {
+      width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; border-radius: 4px; font-size: 16px; color: #666; transition: all .15s;
+    }
+    .menu-fold-btn:hover { background: #f5f5f5; color: #ff4d88; }
+    .brand { font-weight: 600; font-size: 15px; color: #333; margin-left: 8px; user-select: none; }
+    .header-right { display: flex; align-items: center; gap: 8px; }
+    .user-info {
+      display: flex; align-items: center; gap: 6px; cursor: pointer;
+      padding: 4px 8px; border-radius: 4px; font-size: 13px; color: #666;
+    }
+    .user-info:hover { background: #f5f5f5; }
+    .user-avatar {
+      width: 28px; height: 28px; border-radius: 50%; background: #ff4d88; color: #fff;
+      display: flex; align-items: center; justify-content: center; font-size: 12px;
+    }
+
+    .layout-body { display: flex; flex: 1; }
+    .app-sider {
+      width: 200px; background: #fff; border-right: 1px solid #f0f0f0;
+      transition: width .2s; overflow-y: auto; flex-shrink: 0;
+    }
+    .app-sider.collapsed { width: 60px; }
+    .sider-logo { height: 48px; display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid #f0f0f0; }
+    .sider-logo .logo-icon { font-size: 22px; color: #ff4d88; }
+    .sider-logo .logo-text { font-size: 14px; font-weight: 600; margin-left: 8px; white-space: nowrap; }
+    .sider-menu { padding: 8px 0; }
+    .sider-menu-item {
+      display: flex; align-items: center; height: 44px; padding: 0 16px;
+      font-size: 13px; color: rgba(0,0,0,.65); text-decoration: none;
+      transition: all .2s ease; cursor: pointer; white-space: nowrap;
+      border-left: 3px solid transparent;
+    }
+    .sider-menu-item:hover { background: linear-gradient(90deg,rgba(255,77,136,.06),transparent); color: #ff4d88; }
+    .sider-menu-item.active { color: #ff4d88; background: linear-gradient(90deg,rgba(255,77,136,.08),rgba(255,77,136,.01)); border-left-color: #ff4d88; }
+    .sider-menu-item.parent-open { color: rgba(0,0,0,.8); font-weight: 500; }
+    .sider-submenu { overflow: hidden; transition: max-height .3s; }
+    .sider-submenu .sider-menu-item { padding-left: 40px; height: 36px; font-size: 12px; }
+    .sider-submenu .sider-menu-item.active { color: #ff4d88; background: #fff0f6; border-left-color: #ff4d88; font-weight: 500; }
+
+    .content-area { flex: 1; overflow-y: auto; background: #f0f2f5; }
+    .page-body { background: #fff; margin: 0; padding: 0 24px 24px; min-height: 100%; }
+
+    .breadcrumb {
+      padding: 16px 0 4px; font-size: 14px; color: rgba(0,0,0,.45);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .breadcrumb a { color: rgba(0,0,0,.45); text-decoration: none; }
+    .breadcrumb a:hover { color: #ff4d88; }
+    .breadcrumb .current { color: rgba(0,0,0,.85); }
+
+    .section { margin-bottom: 24px; }
+    .section-title {
+      font-size: 14px; font-weight: 600; color: rgba(0,0,0,.85);
+      padding-bottom: 8px; margin-bottom: 16px; border-bottom: 1px solid #f0f0f0;
+    }
+    .section-title.small { font-size: 13px; border-bottom: none; margin-bottom: 12px; cursor: pointer; user-select: none; display: flex; align-items: center; gap: 6px; }
+    .section-title .arrow { font-size: 10px; transition: transform .2s; color: #999; }
+    .section-title .arrow.open { transform: rotate(90deg); }
+
+    .form-row { display: flex; align-items: flex-start; margin-bottom: 16px; }
+    .form-label {
+      width: 120px; padding: 5px 12px 0 0; text-align: right;
+      font-size: 14px; color: rgba(0,0,0,.85); flex-shrink: 0;
+    }
+    .form-label.required::before { content: '* '; color: #ff4d88; }
+    .form-control { flex: 1; max-width: 480px; }
+    .form-hint { font-size: 12px; color: #999; margin-top: 4px; }
+
+    .input-field {
+      width: 100%; height: 32px; padding: 0 10px; font-size: 13px;
+      border: 1px solid #d9d9d9; border-radius: 4px; outline: none;
+    }
+    .input-field:focus { border-color: #ff4d88; box-shadow: 0 0 0 2px rgba(255,77,136,.1); }
+    .input-field:disabled { background: #f5f5f5; color: #999; cursor: not-allowed; }
+    .input-field.small { width: 200px; }
+
+    .select-wrap { position: relative; display: inline-block; width: 100%; }
+    .select-trigger {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; height: 32px; padding: 0 10px; font-size: 13px;
+      border: 1px solid #d9d9d9; border-radius: 4px; background: #fff; cursor: pointer;
+      color: rgba(0,0,0,.65);
+    }
+    .select-trigger:hover { border-color: #ff4d88; }
+    .select-trigger.open { border-color: #ff4d88; box-shadow: 0 0 0 2px rgba(255,77,136,.1); }
+    .select-trigger .arrow-down { font-size: 10px; color: #999; }
+    .select-trigger.has-value { color: rgba(0,0,0,.85); }
+    .select-dropdown {
+      position: absolute; top: 34px; left: 0; right: 0; z-index: 200;
+      background: #fff; border-radius: 4px; box-shadow: 0 2px 12px rgba(0,0,0,.12);
+      max-height: 200px; overflow-y: auto; padding: 4px 0;
+    }
+    .select-option { padding: 5px 12px; font-size: 13px; cursor: pointer; }
+    .select-option:hover { background: #fff0f6; }
+    .select-option.selected { color: #ff4d88; font-weight: 500; background: #fff0f6; }
+
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; }
+    .checkbox-label {
+      display: flex; align-items: center; gap: 4px; font-size: 13px; cursor: pointer; user-select: none;
+    }
+
+    .radio-group { display: flex; gap: 16px; }
+    .radio-label {
+      display: flex; align-items: center; gap: 4px; font-size: 13px; cursor: pointer; user-select: none;
+    }
+    input[type="checkbox"], input[type="radio"] { accent-color: #ff4d88; cursor: pointer; }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 4px;
+      height: 32px; padding: 0 16px; font-size: 13px;
+      background: #ff4d88; color: #fff; border: 1px solid #ff4d88;
+      border-radius: 4px; cursor: pointer; transition: all .2s;
+    }
+    .btn-primary:hover { background: #ff3875; }
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 4px;
+      height: 32px; padding: 0 12px; font-size: 13px;
+      background: #fff; color: #666; border: 1px solid #d9d9d9;
+      border-radius: 4px; cursor: pointer; transition: all .2s;
+    }
+    .btn-outline:hover { border-color: #ff4d88; color: #ff4d88; }
+    .btn-link { background: none; border: none; color: #ff4d88; font-size: 13px; cursor: pointer; padding: 0; }
+    .btn-link:hover { color: #ff3875; }
+    .btn-link.danger { color: #ff4d4f; }
+    .btn-link.danger:hover { color: #ff7875; }
+    .btn-sm { height: 24px; padding: 0 6px; font-size: 11px; }
+
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 2px; font-size: 12px; background: #f5f5f5; color: #666; }
+
+    .tabs { display: flex; gap: 0; margin-bottom: 16px; border-bottom: 1px solid #f0f0f0; }
+    .tab-item {
+      padding: 8px 16px; font-size: 13px; cursor: pointer; color: rgba(0,0,0,.65);
+      border-bottom: 2px solid transparent; transition: all .2s;
+    }
+    .tab-item:hover { color: #ff4d88; }
+    .tab-item.active { color: #ff4d88; border-bottom-color: #ff4d88; font-weight: 500; }
+
+    .card-inner { border: 1px solid #f0f0f0; border-radius: 4px; padding: 16px; margin-bottom: 12px; background: #fafafa; }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 13px; font-weight: 600; margin-bottom: 12px;
+      cursor: pointer; user-select: none;
+    }
+    .card-header .delete-btn { font-size: 12px; font-weight: 400; }
+
+    .condition-row {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;
+    }
+    .cond-separator {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 24px; font-size: 12px; color: #ff4d88;
+      background: #fff0f6; border-radius: 2px; cursor: pointer; user-select: none;
+    }
+    .cond-select { width: 130px; }
+    .cond-relation { width: 110px; }
+    .cond-value { width: 160px; }
+    .cond-actions { display: flex; gap: 4px; }
+    .cond-actions button {
+      width: 24px; height: 24px; border-radius: 50%; border: 1px solid #d9d9d9;
+      background: #fff; cursor: pointer; font-size: 12px; color: #999;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cond-actions button:hover { border-color: #ff4d88; color: #ff4d88; }
+
+    .resource-table-wrapper {
+      border: 1px solid #f0f0f0; border-radius: 4px; margin-top: 8px; font-size: 13px;
+    }
+    .resource-table-header {
+      display: flex; background: #fafafa; border-bottom: 1px solid #f0f0f0;
+      font-weight: 500; color: rgba(0,0,0,.85);
+    }
+    .resource-row { border-bottom: 1px solid #f0f0f0; }
+    .resource-row:last-child { border-bottom: none; }
+    .resource-row-main { display: flex; align-items: flex-start; padding: 8px 0; }
+    .rt-col { padding: 4px 12px; }
+    .rt-col-name { width: 140px; flex-shrink: 0; color: rgba(0,0,0,.85); padding-top: 6px; padding-bottom: 6px; }
+    .rt-col-cond { flex: 1; min-width: 0; }
+    .rt-col-config { width: 120px; flex-shrink: 0; }
+    .rt-col-action { width: 100px; flex-shrink: 0; white-space: nowrap; }
+    .res-cond-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+    .resource-row-add { padding: 4px 12px 8px; }
+
+    .price-prefix {
+      display: inline-flex; align-items: center; height: 32px; padding: 0 8px;
+      border: 1px solid #d9d9d9; border-right: none; border-radius: 4px 0 0 4px;
+      background: #fafafa; font-size: 13px; color: #999;
+    }
+    .price-input { border-radius: 0 4px 4px 0 !important; }
+
+    .footer-bar {
+      padding: 16px 0; display: flex; align-items: center; gap: 12px;
+      border-top: 1px solid #f0f0f0; margin-top: 8px;
+    }
+    .cancel-link { font-size: 13px; color: rgba(0,0,0,.65); text-decoration: none; }
+    .cancel-link:hover { color: #ff4d88; }
+
+    .info-tip { font-size: 12px; color: #bbb; padding: 8px 0; }
+  </style>
+</head>
+<body>
+  <div id="app" v-cloak>
+    <header class="app-header">
+      <div class="header-left">
+        <span class="menu-fold-btn" @click="siderCollapsed = !siderCollapsed">✕</span>
+        <span class="brand">订阅管理系统</span>
+      </div>
+      <div class="header-right">
+        <span class="user-info">
+          <span class="user-avatar">张</span>
+          <span>张家敏</span>
+          <span>▾</span>
+        </span>
+      </div>
+    </header>
+
+    <div class="layout-body">
+      <!-- 侧边导航 -->
+      <aside class="app-sider" :class="{ collapsed: siderCollapsed }">
+        <div class="sider-logo">
+          <span class="logo-icon">♥</span>
+          <span class="logo-text" v-show="!siderCollapsed">导航菜单</span>
+        </div>
+        <div class="sider-menu">
+          <a class="sider-menu-item" href="javascript:;">📋<span v-show="!siderCollapsed">&nbsp;订阅管理</span></a>
+          <a class="sider-menu-item" href="javascript:;">🖼️<span v-show="!siderCollapsed">&nbsp;素材管理</span></a>
+          <a class="sider-menu-item" href="javascript:;">🔗<span v-show="!siderCollapsed">&nbsp;拼团管理</span></a>
+          <a class="sider-menu-item" href="javascript:;">📋<span v-show="!siderCollapsed">&nbsp;订单管理</span></a>
+          <div class="sider-menu-item parent-open active" @click="opToolsOpen = !opToolsOpen">
+            <span>🔧</span><span v-show="!siderCollapsed">&nbsp;运营工具&nbsp;▶</span>
+          </div>
+          <div class="sider-submenu" :style="{ maxHeight: opToolsOpen && !siderCollapsed ? '300px' : '0' }">
+            <a class="sider-menu-item" href="javascript:void(0)">弹窗</a>
+            <a class="sider-menu-item" href="javascript:void(0)">兑换码</a>
+            <a class="sider-menu-item" href="javascript:void(0)" @click="navigateTo('/gift-strategy/list')">赠礼发放策略</a>
+            <a class="sider-menu-item" href="javascript:void(0)">限时促销策略</a>
+            <a class="sider-menu-item" href="javascript:void(0)">赠礼物流管理</a>
+            <a class="sider-menu-item active" @click="navigateTo('/event-pricing-strategy/list')">活动价格策略</a>
+            <a class="sider-menu-item" href="javascript:void(0)" @click="navigateTo('/event-operations-strategy/list')">活动投放策略</a>
+          </div>
+          <div class="sider-menu-item parent-open" @click="deployOpen = !deployOpen">
+            <span>📢</span><span v-show="!siderCollapsed">&nbsp;运营位投放策略&nbsp;▶</span>
+          </div>
+          <div class="sider-submenu" :style="{ maxHeight: deployOpen && !siderCollapsed ? '120px' : '0' }">
+            <a class="sider-menu-item" href="javascript:void(0)" @click="navigateTo('/rights-pay/list')">投放策略</a>
+            <a class="sider-menu-item" href="javascript:void(0)">页面模块展示</a>
+          </div>
+          <div class="sider-menu-item parent-open" @click="priceOpen = !priceOpen">
+            <span>💰</span><span v-show="!siderCollapsed">&nbsp;价格管理&nbsp;▶</span>
+          </div>
+          <div class="sider-submenu" :style="{ maxHeight: priceOpen && !siderCollapsed ? '150px' : '0' }">
+            <a class="sider-menu-item" href="javascript:void(0)">价格套餐</a>
+            <a class="sider-menu-item" href="javascript:void(0)">价格策略</a>
+            <a class="sider-menu-item" href="javascript:void(0)">促销套餐</a>
+          </div>
+          <a class="sider-menu-item" href="javascript:;">📦<span v-show="!siderCollapsed">&nbsp;产品管理</span></a>
+          <a class="sider-menu-item" href="javascript:;">🎯<span v-show="!siderCollapsed">&nbsp;抽奖管理</span></a>
+          <a class="sider-menu-item" href="javascript:;">🏆<span v-show="!siderCollapsed">&nbsp;中奖管理</span></a>
+          <a class="sider-menu-item" href="javascript:;">📜<span v-show="!siderCollapsed">&nbsp;订阅管理</span></a>
+          <a class="sider-menu-item" href="javascript:;">📁<span v-show="!siderCollapsed">&nbsp;素材库</span></a>
+          <a class="sider-menu-item" href="javascript:;">⚙️<span v-show="!siderCollapsed">&nbsp;设置管理</span></a>
+          <a class="sider-menu-item" href="javascript:;">🏪<span v-show="!siderCollapsed">&nbsp;第三方商户管理</span></a>
+          <a class="sider-menu-item" href="javascript:;">📚<span v-show="!siderCollapsed">&nbsp;知识库</span></a>
+        </div>
+      </aside>
+
+      <!-- 主体内容 -->
+      <main class="content-area">
+        <div class="page-body">
+          <!-- 面包屑 -->
+          <div class="breadcrumb">
+            <a href="javascript:void(0)" @click="navigateTo('/event-pricing-strategy/list')">运营工具</a>
+            <span>/</span>
+            <a href="javascript:void(0)" @click="navigateTo('/event-pricing-strategy/list')">活动价格策略</a>
+            <span>/</span>
+            <span class="current">新增</span>
+          </div>
+
+          <!-- 基础信息 -->
+          <div class="section">
+            <div class="section-title">基础信息</div>
+            <div class="form-row">
+              <div class="form-label required">活动策略名称 :</div>
+              <div class="form-control">
+                <input class="input-field" v-model="form.strategyName" placeholder="请输入，例如「拼团1.0」，≤15字" maxlength="15" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-label required">策略ID :</div>
+              <div class="form-control">
+                <input class="input-field" disabled placeholder="不向用户展示，系统自动生成" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-label required">订阅计划 :</div>
+              <div class="form-control">
+                <div class="select-wrap" v-click-outside="() => subscribePlanOpen = false">
+                  <div class="select-trigger" :class="{ open: subscribePlanOpen, 'has-value': form.subscribePlan }" @click="subscribePlanOpen = !subscribePlanOpen">
+                    <span>{{ form.subscribePlan || '请选择' }}</span>
+                    <span class="arrow-down">▾</span>
+                  </div>
+                  <div class="select-dropdown" v-if="subscribePlanOpen">
+                    <div class="select-option" v-for="p in subscribePlanOptions" :key="p" :class="{ selected: form.subscribePlan === p }" @click="form.subscribePlan = p; subscribePlanOpen = false">{{ p }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 投放条件 -->
+          <div class="section">
+            <div class="section-title">投放条件</div>
+            <div class="form-row">
+              <div class="form-label required">发放页面 :</div>
+              <div class="form-control">
+                <div class="checkbox-group">
+                  <label class="checkbox-label" v-for="p in pageOptions" :key="p">
+                    <input type="checkbox" :value="p" v-model="form.pages" />
+                    {{ p }}
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-label">用户条件 :</div>
+              <div class="form-control" style="max-width: 680px;">
+                <div class="card-inner" v-if="form.conditionGroups.length === 0" style="text-align:center;color:#bbb;padding:20px;">
+                  暂无用户条件，点击下方按钮添加
+                </div>
+                <div v-for="(group, gi) in form.conditionGroups" :key="gi" style="margin-bottom:12px;">
+                  <div v-if="gi > 0" style="display:flex;align-items:center;margin-bottom:8px;">
+                    <span class="cond-separator" @click="toggleCondGroupRelation(gi)">且</span>
+                  </div>
+                  <div class="card-inner" style="position:relative;">
+                    <div v-for="(cond, ci) in group.conditions" :key="ci" class="condition-row">
+                      <div class="select-wrap cond-select" v-click-outside="() => closeCondDropdown(gi, ci, 'field')">
+                        <div class="select-trigger" :class="{ open: cond._fieldOpen, 'has-value': cond.field }" @click="toggleCondDropdown(gi, ci, 'field')">
+                          <span>{{ cond.field || '条件选项' }}</span>
+                          <span class="arrow-down">▾</span>
+                        </div>
+                        <div class="select-dropdown" v-if="cond._fieldOpen">
+                          <div class="select-option" v-for="f in conditionFields" :key="f" :class="{ selected: cond.field === f }" @click="selectCondField(gi, ci, f)">{{ f }}</div>
+                        </div>
+                      </div>
+                      <div class="select-wrap cond-relation" v-click-outside="() => closeCondDropdown(gi, ci, 'relation')">
+                        <div class="select-trigger" :class="{ open: cond._relationOpen, 'has-value': cond.relation }" @click="toggleCondDropdown(gi, ci, 'relation')">
+                          <span>{{ cond.relation || '关系' }}</span>
+                          <span class="arrow-down">▾</span>
+                        </div>
+                        <div class="select-dropdown" v-if="cond._relationOpen">
+                          <div class="select-option" v-for="r in condRelations" :key="r" :class="{ selected: cond.relation === r }" @click="cond.relation = r; cond._relationOpen = false">{{ r }}</div>
+                        </div>
+                      </div>
+                      <div class="select-wrap cond-value" v-click-outside="() => closeCondDropdown(gi, ci, 'value')">
+                        <div class="select-trigger" :class="{ open: cond._valueOpen, 'has-value': cond.value }" @click="toggleCondDropdown(gi, ci, 'value')">
+                          <span>{{ cond.value || '选择值' }}</span>
+                          <span class="arrow-down">▾</span>
+                        </div>
+                        <div class="select-dropdown" v-if="cond._valueOpen">
+                          <div class="select-option" v-for="v in getCondValues(cond.field)" :key="v" :class="{ selected: cond.value === v }" @click="cond.value = v; cond._valueOpen = false">{{ v }}</div>
+                        </div>
+                      </div>
+                      <div class="cond-actions">
+                        <button title="切换条件" @click="toggleCondRelation(gi, ci)">⇄</button>
+                        <button title="添加条件" @click="addCondition(gi, ci)">＋</button>
+                        <button title="删除条件" @click="removeCondition(gi, ci)" v-if="group.conditions.length > 1">−</button>
+                      </div>
+                    </div>
+                    <button class="btn-link danger btn-sm" style="position:absolute;top:0;right:8px;" @click="removeConditionGroup(gi)">清除数据</button>
+                  </div>
+                </div>
+                <button class="btn-outline btn-sm" @click="addConditionGroup" style="margin-top:4px;">＋ 添加条件组</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 投放内容 -->
+          <div class="section">
+            <div class="section-title">投放内容</div>
+
+            <!-- 活动价格卡片 -->
+            <div class="section-title small" @click="cardSectionOpen = !cardSectionOpen">
+              <span class="arrow" :class="{ open: cardSectionOpen }">▶</span>
+              活动价格卡片
+            </div>
+            <div v-if="cardSectionOpen">
+              <div v-for="(card, cardIdx) in form.cards" :key="cardIdx" class="card-inner">
+                <div class="card-header" @click="card._open = !card._open">
+                  <span>
+                    <span class="arrow" :class="{ open: card._open }" style="font-size:10px;">▶</span>
+                    活动卡片 {{ cardIdx + 1 }}
+                  </span>
+                  <button class="btn-link danger btn-sm delete-btn" @click.stop="removeCard(cardIdx)" v-if="form.cards.length > 1">删除</button>
+                </div>
+                <div v-if="card._open">
+                  <div class="form-row">
+                    <div class="form-label required">卡片名称 :</div>
+                    <div class="form-control">
+                      <input class="input-field" v-model="card.name" placeholder="请输入卡片名称，仅内部展示，不对用户展示，≤20字" maxlength="20" />
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-label required">活动形式 :</div>
+                    <div class="form-control">
+                      <div class="select-wrap" v-click-outside="() => card._actTypeOpen = false">
+                        <div class="select-trigger" :class="{ open: card._actTypeOpen, 'has-value': card.activityType }" @click="card._actTypeOpen = !card._actTypeOpen">
+                          <span>{{ card.activityType || '请选择' }}</span>
+                          <span class="arrow-down">▾</span>
+                        </div>
+                        <div class="select-dropdown" v-if="card._actTypeOpen">
+                          <div class="select-option" :class="{ selected: card.activityType === '拼团' }" @click="card.activityType = '拼团'; card._actTypeOpen = false">拼团</div>
+                          <div class="select-option" :class="{ selected: card.activityType === '活动入口' }" @click="card.activityType = '活动入口'; card._actTypeOpen = false">活动入口</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 拼团形式 -->
+                  <template v-if="card.activityType === '拼团'">
+                    <div class="form-row">
+                      <div class="form-label required">团信息 :</div>
+                      <div class="form-control">
+                        <div class="select-wrap" v-click-outside="() => card._groupInfoOpen = false">
+                          <div class="select-trigger" :class="{ open: card._groupInfoOpen, 'has-value': card.groupInfo }" @click="card._groupInfoOpen = !card._groupInfoOpen">
+                            <span>{{ card.groupInfo || '请选择' }}</span>
+                            <span class="arrow-down">▾</span>
+                          </div>
+                          <div class="select-dropdown" v-if="card._groupInfoOpen">
+                            <div class="select-option" v-for="g in groupInfoOptions" :key="g" :class="{ selected: card.groupInfo === g }" @click="card.groupInfo = g; card._groupInfoOpen = false">{{ g }}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- 拼团 Tab -->
+                    <div class="tabs">
+                      <div class="tab-item" :class="{ active: card._groupTab === 0 }" @click="card._groupTab = 0">待拼团状态</div>
+                      <div class="tab-item" :class="{ active: card._groupTab === 1 }" @click="card._groupTab = 1">拼团中状态</div>
+                    </div>
+
+                    <template v-if="card._groupTab === 0">
+                      <div class="form-row">
+                        <div class="form-label">套餐名称 :</div>
+                        <div class="form-control"><input class="input-field" v-model="card.pendingPlanName" placeholder="请输入，≤15字" maxlength="15" /></div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-label">价格下方文案 :</div>
+                        <div class="form-control">
+                          <input class="input-field" v-model="card.pendingPriceText" placeholder="请输入，≤5字" maxlength="5" />
+                          <div class="form-hint">9.02.0及以上生效。若未配置，默认只展示划线价（如需划线请配置<em>划线信息</em>，例如：配置"单独拼<del>￥199</del>"展示为：单独拼<s>￥199</s>）</div>
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-label">格子底部标签 :</div>
+                        <div class="form-control"><input class="input-field" v-model="card.pendingBottomLabel" placeholder="请输入，≤10字" maxlength="10" /></div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-label">主按钮展示效果 :</div>
+                        <div class="form-control">
+                          <div style="margin-bottom:8px;">
+                            <div style="font-size:13px;color:rgba(0,0,0,.85);margin-bottom:6px;">主标题 :</div>
+                            <div class="radio-group" style="margin-bottom:8px;">
+                              <label class="radio-label"><input type="radio" value="show" v-model="card.pendingBtnPriceMode" /> 展示支付金额</label>
+                              <label class="radio-label"><input type="radio" value="hide" v-model="card.pendingBtnPriceMode" /> 隐藏支付金额</label>
+                            </div>
+                            <div style="font-size:13px;color:rgba(0,0,0,.85);margin-bottom:4px;">* 文案 :</div>
+                            <input class="input-field" v-model="card.pendingBtnText" placeholder="请输入，≤15字" maxlength="15" style="width:200px;" />
+                          </div>
+                          <div style="margin-top:8px;">
+                            <div style="font-size:13px;color:rgba(0,0,0,.85);margin-bottom:4px;">副文案 :</div>
+                            <input class="input-field" v-model="card.pendingBtnSubText" placeholder="请输入，≤15字" maxlength="15" style="width:200px;" />
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+
+                    <template v-if="card._groupTab === 1">
+                      <div class="form-row">
+                        <div class="form-label">套餐名称 :</div>
+                        <div class="form-control"><input class="input-field" v-model="card.groupingPlanName" placeholder="请输入，≤15字" maxlength="15" /></div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-label">价格下方文案 :</div>
+                        <div class="form-control">
+                          <input class="input-field" v-model="card.groupingPriceText" placeholder="请输入，≤5字" maxlength="5" />
+                          <div class="form-hint">9.02.0及以上生效。若未配置，默认只展示划线价（如需划线请配置<em>划线信息</em>，例如：配置"单独拼<del>￥199</del>"展示为：单独拼<s>￥199</s>）</div>
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-label">格子底部标签 :</div>
+                        <div class="form-control"><input class="input-field" v-model="card.groupingBottomLabel" placeholder="请输入，≤10字" maxlength="10" /></div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-label">主按钮展示效果 :</div>
+                        <div class="form-control">
+                          <div style="font-size:13px;color:rgba(0,0,0,.85);margin-bottom:4px;">* 文案 :</div>
+                          <input class="input-field" v-model="card.groupingBtnText" placeholder="请输入，≤15字" maxlength="15" style="width:200px;" />
+                        </div>
+                      </div>
+                    </template>
+                  </template>
+
+                  <!-- 活动入口形式 -->
+                  <template v-if="card.activityType === '活动入口'">
+                    <div class="form-row">
+                      <div class="form-label required">活动信息 :</div>
+                      <div class="form-control">
+                        <div class="select-wrap" v-click-outside="() => card._actInfoOpen = false">
+                          <div class="select-trigger" :class="{ open: card._actInfoOpen, 'has-value': card.activityInfo }" @click="card._actInfoOpen = !card._actInfoOpen">
+                            <span>{{ card.activityInfo || '请选择' }}</span>
+                            <span class="arrow-down">▾</span>
+                          </div>
+                          <div class="select-dropdown" v-if="card._actInfoOpen">
+                            <div class="select-option" v-for="a in activityInfoOptions" :key="a" :class="{ selected: card.activityInfo === a }" @click="card.activityInfo = a; card._actInfoOpen = false">{{ a }}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-label required">价格展示 :</div>
+                      <div class="form-control">
+                        <div style="display:flex;">
+                          <span class="price-prefix">￥</span>
+                          <input class="input-field price-input" v-model="card.priceDisplay" placeholder="请输入价格数据" style="flex:1;" />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-label">套餐名称 :</div>
+                      <div class="form-control"><input class="input-field" v-model="card.planName" placeholder="请输入，≤15字" maxlength="15" /></div>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-label">价格下方文案 :</div>
+                      <div class="form-control">
+                        <input class="input-field" v-model="card.priceText" placeholder="请输入，≤5字" maxlength="5" />
+                        <div class="form-hint">9.02.0及以上生效。若未配置，默认只展示划线价（如需划线请配置<em>划线信息</em>，例如：配置"单独拼<del>￥199</del>"展示为：单独拼<s>￥199</s>）</div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-label">格子底部标签 :</div>
+                      <div class="form-control"><input class="input-field" v-model="card.bottomLabel" placeholder="请输入，≤10字" maxlength="10" /></div>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-label">主按钮展示效果 :</div>
+                      <div class="form-control">
+                        <div style="margin-bottom:8px;">
+                          <div style="font-size:13px;color:rgba(0,0,0,.85);margin-bottom:6px;">主标题 :</div>
+                          <div class="radio-group" style="margin-bottom:8px;">
+                            <label class="radio-label"><input type="radio" value="show" v-model="card.btnPriceMode" /> 展示支付金额</label>
+                            <label class="radio-label"><input type="radio" value="hide" v-model="card.btnPriceMode" /> 隐藏支付金额</label>
+                          </div>
+                          <div style="font-size:13px;color:rgba(0,0,0,.85);margin-bottom:4px;">* 文案 :</div>
+                          <input class="input-field" v-model="card.btnText" placeholder="请输入，≤15字" maxlength="15" style="width:200px;" />
+                        </div>
+                        <div style="margin-top:8px;">
+                          <div style="font-size:13px;color:rgba(0,0,0,.85);margin-bottom:4px;">副文案 :</div>
+                          <input class="input-field" v-model="card.btnSubText" placeholder="请输入，≤15字" maxlength="15" style="width:200px;" />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-label required">主按钮跳转协议 :</div>
+                      <div class="form-control">
+                        <div class="select-wrap" v-click-outside="() => card._btnLinkOpen = false">
+                          <div class="select-trigger" :class="{ open: card._btnLinkOpen, 'has-value': card.btnLink }" @click="card._btnLinkOpen = !card._btnLinkOpen">
+                            <span>{{ card.btnLink || '请选择' }}</span>
+                            <span class="arrow-down">▾</span>
+                          </div>
+                          <div class="select-dropdown" v-if="card._btnLinkOpen">
+                            <div class="select-option" v-for="l in btnLinkOptions" :key="l" :class="{ selected: card.btnLink === l }" @click="card.btnLink = l; card._btnLinkOpen = false">{{ l }}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </div>
+              <button class="btn-outline btn-sm" @click="addCard">＋ 添加活动卡片</button>
+            </div>
+
+            <!-- 资源位精细化配置 -->
+            <div class="info-tip">可针对不同资源位进行进一步精细化运营配置</div>
+            <div class="resource-table-wrapper">
+              <div class="resource-table-header">
+                <div class="rt-col rt-col-name">资源位</div>
+                <div class="rt-col rt-col-cond">投放条件</div>
+                <div class="rt-col rt-col-config">配置内容</div>
+                <div class="rt-col rt-col-action">操作</div>
+              </div>
+              <div v-for="(r, ri) in form.resources" :key="ri" class="resource-row">
+                <div class="resource-row-main">
+                  <div class="rt-col rt-col-name">{{ r.name }}</div>
+                  <div class="rt-col rt-col-cond">
+                    <div v-if="r.conditions.length === 0" style="color:#bbb;font-size:12px;padding:4px 0;">暂无投放条件</div>
+                    <div v-for="(rc, rci) in r.conditions" :key="rci" class="res-cond-row">
+                      <div class="select-wrap" style="width:120px;" v-click-outside="() => closeResCondDropdown(ri, rci, 'field')">
+                        <div class="select-trigger" style="height:28px;font-size:12px;" :class="{ open: rc._fieldOpen, 'has-value': rc.field }" @click="toggleResCondDropdown(ri, rci, 'field')">
+                          <span>{{ rc.field || '条件选项' }}</span>
+                          <span class="arrow-down">▾</span>
+                        </div>
+                        <div class="select-dropdown" v-if="rc._fieldOpen">
+                          <div class="select-option" v-for="f in conditionFields" :key="f" :class="{ selected: rc.field === f }" @click="rc.field = f; rc._fieldOpen = false">{{ f }}</div>
+                        </div>
+                      </div>
+                      <div class="select-wrap" style="width:100px;" v-click-outside="() => closeResCondDropdown(ri, rci, 'relation')">
+                        <div class="select-trigger" style="height:28px;font-size:12px;" :class="{ open: rc._relationOpen, 'has-value': rc.relation }" @click="toggleResCondDropdown(ri, rci, 'relation')">
+                          <span>{{ rc.relation || '关系' }}</span>
+                          <span class="arrow-down">▾</span>
+                        </div>
+                        <div class="select-dropdown" v-if="rc._relationOpen">
+                          <div class="select-option" v-for="rel in condRelations" :key="rel" :class="{ selected: rc.relation === rel }" @click="rc.relation = rel; rc._relationOpen = false">{{ rel }}</div>
+                        </div>
+                      </div>
+                      <div class="select-wrap" style="width:130px;" v-click-outside="() => closeResCondDropdown(ri, rci, 'value')">
+                        <div class="select-trigger" style="height:28px;font-size:12px;" :class="{ open: rc._valueOpen, 'has-value': rc.value }" @click="toggleResCondDropdown(ri, rci, 'value')">
+                          <span>{{ rc.value || '选择值' }}</span>
+                          <span class="arrow-down">▾</span>
+                        </div>
+                        <div class="select-dropdown" v-if="rc._valueOpen">
+                          <div class="select-option" v-for="v in getCondValues(rc.field)" :key="v" :class="{ selected: rc.value === v }" @click="rc.value = v; rc._valueOpen = false">{{ v }}</div>
+                        </div>
+                      </div>
+                      <div class="cond-actions">
+                        <button @click="r.conditions.push(newResCondition())" style="color:#52c41a;">＋</button>
+                        <button @click="r.conditions.splice(rci, 1)" v-if="r.conditions.length > 1" style="color:#ff4d4f;">−</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="rt-col rt-col-config">
+                    <span v-if="!r.configContent" style="color:#bbb;font-size:12px;">暂无配置</span>
+                    <span v-else class="tag">{{ r.configContent }}</span>
+                  </div>
+                  <div class="rt-col rt-col-action">
+                    <button class="btn-link btn-sm" @click="editResConfig(ri)">编辑</button>
+                    <button class="btn-link danger btn-sm" @click="removeResRow(ri)" v-if="form.resources.length > 1" style="margin-left:8px;">删除</button>
+                  </div>
+                </div>
+                <div class="resource-row-add">
+                  <button class="btn-outline btn-sm" @click="addResCondition(ri)">＋ 添加一行</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 底部按钮 -->
+          <div class="footer-bar">
+            <button class="btn-primary" @click="handleSave">保 存</button>
+            <a class="cancel-link" href="javascript:void(0)" @click="handleCancel">取 消</a>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/vue@3.3.13/dist/vue.global.js"></script>
+  <script>
+    const { createApp, ref, reactive } = Vue;
+
+    createApp({
+      directives: {
+        'click-outside': {
+          mounted(el, binding) {
+            el._clickOutside = (e) => {
+              if (!el.contains(e.target)) binding.value(e);
+            };
+            document.addEventListener('click', el._clickOutside, true);
+          },
+          unmounted(el) {
+            document.removeEventListener('click', el._clickOutside, true);
+          }
+        }
+      },
+      setup() {
+        const siderCollapsed = ref(false);
+        const opToolsOpen = ref(true);
+        const deployOpen = ref(false);
+        const priceOpen = ref(false);
+        const subscribePlanOpen = ref(false);
+        const cardSectionOpen = ref(true);
+
+        const pageOptions = ['常规支付转化页', '支付半弹窗', '育儿会员主页', '学生开卡页'];
+        const subscribePlanOptions = ['订阅计划A', '订阅计划B', '订阅计划C'];
+
+        const conditionFields = [
+          '会员状态', '身份模式', '客户端平台', '应用版本', 'AB实验',
+          '谛听人群包', '用户ID', '签约状态', '用户拥有首购特惠资格', '用户未享受过学生特惠'
+        ];
+        const condRelations = ['包含', '不包含', '等于', '不等于', '大于', '小于', '在列表中', '不在列表中'];
+        const condFieldValues = {
+          '会员状态': ['从未开通过', '会员生效中', '已过期'],
+          '身份模式': ['普通用户', '学生用户', '会员用户'],
+          '客户端平台': ['iOS', 'Android'],
+          '应用版本': ['8.0', '9.0', '9.02.0', '最新版本'],
+          'AB实验': ['实验组A', '实验组B', '对照组'],
+          '签约状态': ['已签约', '未签约'],
+          '谛听人群包': ['人群包A', '人群包B', '人群包C'],
+          '用户ID': ['ID值1', 'ID值2', 'ID值3'],
+          '用户拥有首购特惠资格': ['是', '否'],
+          '用户未享受过学生特惠': ['是', '否'],
+        };
+        const groupInfoOptions = ['拼年卡团', '拼半年卡团', '拼季卡团', '拼月卡团'];
+        const activityInfoOptions = ['活动A', '活动B', '活动C'];
+        const btnLinkOptions = ['支付转化页', '权益详情页', 'H5页面'];
+
+        function newCondition() {
+          return { field: '', _fieldOpen: false, relation: '', _relationOpen: false, value: '', _valueOpen: false };
+        }
+
+        function newConditionGroup() {
+          return { conditions: [newCondition()] };
+        }
+
+        function newCard() {
+          return {
+            _open: true,
+            _actTypeOpen: false,
+            _groupInfoOpen: false,
+            _actInfoOpen: false,
+            _btnLinkOpen: false,
+            _groupTab: 0,
+            name: '',
+            activityType: '',
+            activityInfo: '',
+            priceDisplay: '',
+            planName: '',
+            priceText: '',
+            bottomLabel: '',
+            btnPriceMode: 'show',
+            btnText: '',
+            btnSubText: '',
+            btnLink: '',
+            // 拼团相关
+            groupInfo: '',
+            // 待拼团
+            pendingPlanName: '',
+            pendingPriceText: '',
+            pendingBottomLabel: '',
+            pendingBtnPriceMode: 'show',
+            pendingBtnText: '',
+            pendingBtnSubText: '',
+            // 拼团中
+            groupingPlanName: '',
+            groupingPriceText: '',
+            groupingBottomLabel: '',
+            groupingBtnText: '',
+          };
+        }
+
+        function newResCondition() {
+          return { field: '', _fieldOpen: false, relation: '', _relationOpen: false, value: '', _valueOpen: false };
+        }
+
+        const form = reactive({
+          strategyName: '',
+          subscribePlan: '',
+          pages: ['常规支付转化页', '支付半弹窗', '育儿会员主页'],
+          conditionGroups: [],
+          cards: [newCard()],
+          resources: [
+            { name: '价格卡片排序', conditions: [], configContent: '' },
+            { name: '价格锚定', conditions: [], configContent: '' },
+            { name: '价格标签', conditions: [], configContent: '' },
+          ],
+        });
+
+        function getCondValues(field) {
+          return condFieldValues[field] || [];
+        }
+
+        // 投放条件相关
+        function addConditionGroup() { form.conditionGroups.push(newConditionGroup()); }
+        function removeConditionGroup(gi) { form.conditionGroups.splice(gi, 1); }
+        function toggleCondGroupRelation(gi) { /* toggle between 且/或 */ }
+        function addCondition(gi, ci) { form.conditionGroups[gi].conditions.splice(ci + 1, 0, newCondition()); }
+        function removeCondition(gi, ci) { form.conditionGroups[gi].conditions.splice(ci, 1); }
+        function toggleCondRelation(gi, ci) { /* toggle condition relation */ }
+        function toggleCondDropdown(gi, ci, field) {
+          const c = form.conditionGroups[gi].conditions[ci];
+          const key = '_' + field + 'Open';
+          c[key] = !c[key];
+        }
+        function closeCondDropdown(gi, ci, field) {
+          const c = form.conditionGroups[gi].conditions[ci];
+          const key = '_' + field + 'Open';
+          c[key] = false;
+        }
+        function selectCondField(gi, ci, f) {
+          const c = form.conditionGroups[gi].conditions[ci];
+          c.field = f;
+          c._fieldOpen = false;
+          c.value = '';
+        }
+
+        // 资源位条件
+        function toggleResCondDropdown(ri, rci, field) {
+          const c = form.resources[ri].conditions[rci];
+          const key = '_' + field + 'Open';
+          c[key] = !c[key];
+        }
+        function closeResCondDropdown(ri, rci, field) {
+          const c = form.resources[ri].conditions[rci];
+          const key = '_' + field + 'Open';
+          c[key] = false;
+        }
+        function addResCondition(ri) { form.resources[ri].conditions.push(newResCondition()); }
+        function removeResRow(ri) { form.resources.splice(ri, 1); }
+        function editResConfig(ri) {
+          const val = prompt('请输入配置内容:', form.resources[ri].configContent || '');
+          if (val !== null) form.resources[ri].configContent = val;
+        }
+
+        // 活动卡片
+        function addCard() { form.cards.push(newCard()); }
+        function removeCard(idx) { form.cards.splice(idx, 1); }
+
+        function handleSave() {
+          if (!form.strategyName.trim()) return alert('请输入活动策略名称');
+          if (!form.subscribePlan) return alert('请选择订阅计划');
+          if (form.pages.length === 0) return alert('请选择发放页面');
+          const invalidCards = form.cards.filter(c => !c.name.trim() || !c.activityType);
+          if (invalidCards.length > 0) return alert('请完善所有活动卡片的名称和活动形式');
+          alert('保存成功！（演示）');
+          navigateTo('/event-pricing-strategy/list');
+        }
+
+        function handleCancel() { navigateTo('/event-pricing-strategy/list'); }
+
+        function navigateTo(url) {
+          if (location.protocol === 'file:') {
+            const [path, query] = url.split('?');
+            const parts = path.replace(/^\//, '').replace(/\/$/, '').split('/');
+            const filename = parts.join('-') + '.html';
+            const base = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
+            window.location.href = base + '/' + filename + (query ? '?' + query : '');
+          } else {
+            window.location.href = url;
+          }
+        }
+
+        return {
+          siderCollapsed, opToolsOpen, deployOpen, priceOpen,
+          subscribePlanOpen, cardSectionOpen,
+          pageOptions, subscribePlanOptions, conditionFields, condRelations,
+          groupInfoOptions, activityInfoOptions, btnLinkOptions,
+          form, newResCondition,
+          getCondValues,
+          addConditionGroup, removeConditionGroup, toggleCondGroupRelation,
+          addCondition, removeCondition, toggleCondRelation,
+          toggleCondDropdown, closeCondDropdown, selectCondField,
+          toggleResCondDropdown, closeResCondDropdown, addResCondition,
+          removeResRow, editResConfig,
+          addCard, removeCard,
+          handleSave, handleCancel, navigateTo,
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>

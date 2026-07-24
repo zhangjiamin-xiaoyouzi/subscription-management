@@ -720,7 +720,7 @@
         }
 
         function goView(row) { alert('查看策略详情：' + row.id + ' ' + row.name); }
-        function goCreate() { alert('跳转至新建活动价格策略页面'); }
+        function goCreate() { navigateTo('/event-pricing-strategy/create'); }
         function goEdit(row) { openDropdownId.value = null; alert('跳转至修改策略页面：' + row.id); }
         function goCopy(row) { openDropdownId.value = null; alert('复制策略：' + row.id + ' ' + row.name); }
 
